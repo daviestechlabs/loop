@@ -1,0 +1,383 @@
+{
+  "schemaVersion": 1,
+  "artifacts": [
+    {
+      "path": "vendor-artifacts/alpine-minirootfs-3.24.1-x86_64.tar.gz",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/releases/x86_64/alpine-minirootfs-3.24.1-x86_64.tar.gz",
+      "license": "LicenseRef-Alpine-Linux-aggregate",
+      "sha256": "41f73e3cf5fa919b8aa5ca6b30dc48f0da2720776d7423e2a7748211456fe081",
+      "size": 3698422
+    },
+    {
+      "path": "vendor-artifacts/apk-tools-3.0.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/apk-tools-3.0.8-r0.apk",
+      "license": "GPL-2.0-only",
+      "sha256": "91cb7303b27da01364550daa767b85cbe88fc5f7e37b9adae0f847ec7e0890d9",
+      "size": 55395
+    },
+    {
+      "path": "vendor-artifacts/binutils-2.45.1-r1.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/binutils-2.45.1-r1.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later AND BSD-3-Clause",
+      "sha256": "15682887459d216585feb438bbfb7ec63e1f33e77c453f44637d2d9d8c35977d",
+      "size": 3229647
+    },
+    {
+      "path": "vendor-artifacts/build-base-0.5-r4.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/build-base-0.5-r4.apk",
+      "license": "MIT",
+      "sha256": "3ac72e74e96150995e8d797b6c33fc3b46d69e3667c47bd0ff25ce89f9fc4eaf",
+      "size": 1340
+    },
+    {
+      "path": "vendor-artifacts/ca-certificates-20260611-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/ca-certificates-20260611-r0.apk",
+      "license": "MPL-2.0 AND MIT",
+      "sha256": "abe8a3badeb99bd147a0c5cba70364e8774e6ae05c625a86c01f11532d9721c8",
+      "size": 129499
+    },
+    {
+      "path": "vendor-artifacts/ca-certificates-bundle-20260611-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/ca-certificates-bundle-20260611-r0.apk",
+      "license": "MPL-2.0 AND MIT",
+      "sha256": "cd7752154d0fa628a5f7360218e9e8e83edf31f7fa26f58ee42d26b507bd0372",
+      "size": 107328
+    },
+    {
+      "path": "vendor-artifacts/file-5.47-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/file-5.47-r2.apk",
+      "license": "BSD-2-Clause",
+      "sha256": "4681c153c509aec126e2b9ea2c959730309b24a792d49fc8cc26fa5fa87e8fdd",
+      "size": 9722
+    },
+    {
+      "path": "vendor-artifacts/fortify-headers-3.0.1-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/fortify-headers-3.0.1-r2.apk",
+      "license": "0BSD",
+      "sha256": "5ffaebd9f141ac3e3fa0cc99f798f64b4c0aa16fb06a7a77e68f63f350fe23aa",
+      "size": 7356
+    },
+    {
+      "path": "vendor-artifacts/g++-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/g++-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "35c39e8d3667d8603fe209dbafe67681c64b1cda66bf9c836bfb4d05b19a71fd",
+      "size": 18449957
+    },
+    {
+      "path": "vendor-artifacts/gcc-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/gcc-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "d1d482472ed91240731c60dbae8176bc1e32e1dfb694856da6759f6d32716325",
+      "size": 60496469
+    },
+    {
+      "path": "vendor-artifacts/gmp-6.3.0-r4.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/gmp-6.3.0-r4.apk",
+      "license": "LGPL-3.0-or-later OR GPL-2.0-or-later",
+      "sha256": "85323ef5bce8ff234736dc2d6592ea37aebdc6348a531e27430bdfe38364d256",
+      "size": 220074
+    },
+    {
+      "path": "vendor-artifacts/isl25-0.25-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/isl25-0.25-r2.apk",
+      "license": "MIT",
+      "sha256": "562af1786765dd0b2fa3aeac606e3b10b8e6f0d254f353830293959d348f2fb2",
+      "size": 896032
+    },
+    {
+      "path": "vendor-artifacts/libapk-3.0.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libapk-3.0.8-r0.apk",
+      "license": "GPL-2.0-only",
+      "sha256": "e7f59edfee903d17291eb67b8ce86eae87370b0ffb6902384d2e096c64962cc7",
+      "size": 133918
+    },
+    {
+      "path": "vendor-artifacts/libatomic-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libatomic-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "c5ec550c73dd7b4e81e206fdff3cf4c46b0ae1b29fec1db5cd4e12d88416abbf",
+      "size": 10241
+    },
+    {
+      "path": "vendor-artifacts/libcrypto3-3.5.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libcrypto3-3.5.8-r0.apk",
+      "license": "Apache-2.0",
+      "sha256": "161223a16f042b8e469e9441291e071464fd91d4f4bbe6f496ee8d0abd4e0701",
+      "size": 1978546
+    },
+    {
+      "path": "vendor-artifacts/libgcc-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libgcc-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "393dcd32629f06d7d85409c272d142d0c082772d10b87ef55ee82f47de3be637",
+      "size": 80348
+    },
+    {
+      "path": "vendor-artifacts/libgomp-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libgomp-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "e7204aad00e31d544e0a34eac5a7eb7d3586d2b7b22afd6e5907189c4e0337cc",
+      "size": 153729
+    },
+    {
+      "path": "vendor-artifacts/libmagic-5.47-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libmagic-5.47-r2.apk",
+      "license": "BSD-2-Clause",
+      "sha256": "1820acd299025619a848b19ac98c7996fd92c06965255898800b6a790a8b03a2",
+      "size": 526164
+    },
+    {
+      "path": "vendor-artifacts/libssl3-3.5.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libssl3-3.5.8-r0.apk",
+      "license": "Apache-2.0",
+      "sha256": "aca521e5ae4a321322a9d47ed64a1775f5ab1ffd215d1e9fc0433c58f7bfd037",
+      "size": 379265
+    },
+    {
+      "path": "vendor-artifacts/libstdc++-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libstdc++-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "14c987b556f5385a5db18376e788c75f37d85321b8dc1920d926ea7daac1d6f6",
+      "size": 961295
+    },
+    {
+      "path": "vendor-artifacts/libstdc++-dev-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libstdc++-dev-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "62ce308cdbf127dcac6eee1520a4ffec8dc98b30974653908842fe4cc7d90b43",
+      "size": 4145023
+    },
+    {
+      "path": "vendor-artifacts/linux-headers-7.0.0-r1.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/linux-headers-7.0.0-r1.apk",
+      "license": "GPL-2.0-only",
+      "sha256": "c4535f3f0dc6fd4d80efa7ff2a7a72a2d3f8dae31e2587c0785cc3243889cdf2",
+      "size": 2000169
+    },
+    {
+      "path": "vendor-artifacts/make-4.4.1-r4.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/make-4.4.1-r4.apk",
+      "license": "GPL-3.0-or-later",
+      "sha256": "a916626a876f64c6b6fb32a6bf0fa93351d09fae0aa7684135642390da647e60",
+      "size": 116285
+    },
+    {
+      "path": "vendor-artifacts/mpc1-1.3.1-r1.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/mpc1-1.3.1-r1.apk",
+      "license": "LGPL-3.0-or-later",
+      "sha256": "c2247438e163f1c11646428f07576ceb3cf3167f9a9a5c6526021f778d77adb6",
+      "size": 48549
+    },
+    {
+      "path": "vendor-artifacts/mpfr4-4.2.2-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/mpfr4-4.2.2-r0.apk",
+      "license": "LGPL-3.0-or-later",
+      "sha256": "93620a803d416e8c05150fb14413796df14ea370322dff6bd106455deab15646",
+      "size": 313348
+    },
+    {
+      "path": "vendor-artifacts/musl-1.2.6-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/musl-1.2.6-r2.apk",
+      "license": "MIT",
+      "sha256": "573712e2f49c15bfc20a2699f204acdfc74c772722b15e7353d768057fae0e71",
+      "size": 415475
+    },
+    {
+      "path": "vendor-artifacts/musl-dev-1.2.6-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/musl-dev-1.2.6-r2.apk",
+      "license": "MIT",
+      "sha256": "6831e8b9e4821dae2c9121f0641f81e543f4ac27c03144c4876980ee84e6988f",
+      "size": 3421233
+    },
+    {
+      "path": "vendor-artifacts/openssl-dev-3.5.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/openssl-dev-3.5.8-r0.apk",
+      "license": "Apache-2.0",
+      "sha256": "4f580c422acb4b138cd1d9f8301d5be8a3678909efdeb9175a22d906be4847e3",
+      "size": 365997
+    },
+    {
+      "path": "vendor-artifacts/openssl-libs-static-3.5.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/openssl-libs-static-3.5.8-r0.apk",
+      "license": "Apache-2.0",
+      "sha256": "b5decfd9fcd98fdcaef12502cb27f1fdc6d579260b3a4563b79a278fe56d437d",
+      "size": 14245432
+    },
+    {
+      "path": "vendor-artifacts/patch-2.8-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/patch-2.8-r0.apk",
+      "license": "GPL-3.0-or-later",
+      "sha256": "723c061ea3e2c3e61b457f8f614f0b87724aeae37564ba4c1bdd41c722118187",
+      "size": 69750
+    },
+    {
+      "path": "vendor-artifacts/pkgconf-2.5.1-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/pkgconf-2.5.1-r0.apk",
+      "license": "ISC",
+      "sha256": "20cc47b76b82e9424a35ecc4fdd7bd904ef49ada1684214910fae31bc0cab737",
+      "size": 53905
+    },
+    {
+      "path": "vendor-artifacts/zlib-1.3.2-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/zlib-1.3.2-r0.apk",
+      "license": "Zlib",
+      "sha256": "b636306cbf8a0c15493b38de608ba11605fd8f11ade631f5ece6f7fdf5a1e09e",
+      "size": 56195
+    },
+    {
+      "path": "vendor-artifacts/zlib-dev-1.3.2-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/zlib-dev-1.3.2-r0.apk",
+      "license": "Zlib",
+      "sha256": "8fdd47360b4b54c21e4ab91de858cfb4700c17887506e4ab1b0c7ae42746fefd",
+      "size": 34436
+    },
+    {
+      "path": "vendor-artifacts/zlib-static-1.3.2-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/zlib-static-1.3.2-r0.apk",
+      "license": "Zlib",
+      "sha256": "d6baedc0732e0a443292e0f6f9c57a077e0c031c2025f25cd69d637a47f90219",
+      "size": 61662
+    },
+    {
+      "path": "vendor-artifacts/zstd-libs-1.5.7-r2.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/zstd-libs-1.5.7-r2.apk",
+      "license": "BSD-3-Clause OR GPL-2.0-or-later",
+      "sha256": "23c6065b0049b2406441564bcf0032515a43f78e80d76fcb85535a3803ef5d4e",
+      "size": 376646
+    },
+    {
+      "path": "vendor-artifacts/sqlite-dev-3.53.4-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/sqlite-dev-3.53.4-r0.apk",
+      "license": "blessing",
+      "sha256": "c30a6155ebd456f37524242c2a60690e516666fa487fba6630280e7ecdf9442f",
+      "size": 186458
+    },
+    {
+      "path": "vendor-artifacts/sqlite-3.53.4-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/sqlite-3.53.4-r0.apk",
+      "license": "blessing",
+      "sha256": "c51f4aae4fdbbec678639cdaa7af6758eef331dbf7299e2777fa7020b41ff194",
+      "size": 1094286
+    },
+    {
+      "path": "vendor-artifacts/readline-8.3.3-r1.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/readline-8.3.3-r1.apk",
+      "license": "GPL-3.0-or-later",
+      "sha256": "766911ecb986a6c5cf0841a6b556cd1e9dbbf22b3559726de32416486cd15c81",
+      "size": 127194
+    },
+    {
+      "path": "vendor-artifacts/libncursesw-6.6_p20260516-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libncursesw-6.6_p20260516-r0.apk",
+      "license": "X11",
+      "sha256": "cf8caa8a88bc4ce9d9e395567fefaf9ef7fbd55c50ae6155b35c1b58f3755023",
+      "size": 159438
+    },
+    {
+      "path": "vendor-artifacts/ncurses-terminfo-base-6.6_p20260516-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/ncurses-terminfo-base-6.6_p20260516-r0.apk",
+      "license": "X11",
+      "sha256": "ce83be6d0bd10584a53c3a5868cc1595ce5f0f8e0b621f8f7f70b6144e521fc9",
+      "size": 22172
+    },
+    {
+      "path": "vendor-artifacts/sqlite-libs-3.53.4-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/sqlite-libs-3.53.4-r0.apk",
+      "license": "blessing",
+      "sha256": "a8a216e53d22faa3f04d2e3650c1991af66f8d0b42fadff5afcdb9afb60b19e5",
+      "size": 877769
+    },
+    {
+      "path": "vendor-artifacts/jansson-2.15.0-r0.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/jansson-2.15.0-r0.apk",
+      "license": "MIT",
+      "sha256": "7681b41486e1f2b2efce11875c839533464ae8857d30fc49130f0039c6585fdb",
+      "size": 48950
+    },
+    {
+      "path": "vendor-artifacts/libgcc-static-15.2.0-r5.apk",
+      "source": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/libgcc-static-15.2.0-r5.apk",
+      "license": "GPL-2.0-or-later AND LGPL-2.1-or-later",
+      "sha256": "563244a562f5c48b921f7f0b4a571e373cfcba65175fe2d4f752c5f975738bcd",
+      "size": 2249602
+    },
+    {
+      "path": "vendor-artifacts/bun-linux-x64-musl-1.3.14.zip",
+      "source": "https://github.com/oven-sh/bun/releases/download/bun-v1.3.14/bun-linux-x64-musl.zip",
+      "license": "MIT",
+      "sha256": "14bd9aedeebf1dba67e8def9531c89bc989ecfdf1de42e5bfcaf1b8cd9294719",
+      "size": 34669122
+    },
+    {
+      "path": "vendor-artifacts/npm-electric-sql-pglite-0.5.4.tgz",
+      "source": "https://registry.npmjs.org/@electric-sql/pglite/-/pglite-0.5.4.tgz",
+      "license": "Apache-2.0",
+      "integrity": "sha512-yYZUyyXrHU7tPlCjwZQJ6hIG9DscdCCn7Uk0mYKwC1FeHX286AbcmFveMiRBEak8e9iPupjsoVImN3yJZVed2g==",
+      "npmPackage": "@electric-sql/pglite",
+      "npmVersion": "0.5.4",
+      "sha256": "2c0114a4d836358733a8414be1d1670b85e18cac561c598ad9de8cdb884fbd18",
+      "size": 8778518
+    },
+    {
+      "path": "vendor-artifacts/npm-types-bun-1.3.9.tgz",
+      "source": "https://registry.npmjs.org/@types/bun/-/bun-1.3.9.tgz",
+      "license": "MIT",
+      "integrity": "sha512-KQ571yULOdWJiMH+RIWIOZ7B2RXQGpL1YQrBtLIV3FqDcCu6FsbFUBwhdKUlCKUpS3PJDsHlJ1QKlpxoVR+xtw==",
+      "npmPackage": "@types/bun",
+      "npmVersion": "1.3.9",
+      "sha256": "a61d604766f4c5c77a2d95cd86d8fdd5176069d0747775e12833bfe35450fd5b",
+      "size": 1710
+    },
+    {
+      "path": "vendor-artifacts/npm-types-node-26.6.2.tgz",
+      "source": "https://registry.npmjs.org/@types/node/-/node-26.6.2.tgz",
+      "license": "MIT",
+      "integrity": "sha512-X1P21scMv4zGKLYqjdGjaKa7COa0RKVYYZZN/NfvLQ1JegxFhdhpZG/Lyn8AXx6CDUavKAd11v6BvfpkDByK8g==",
+      "npmPackage": "@types/node",
+      "npmVersion": "26.6.2",
+      "sha256": "5bf9e82bb334eb6ec32fb53534b9fd95fce10c44e121254c91a7d33c3d0d22bb",
+      "size": 470953
+    },
+    {
+      "path": "vendor-artifacts/npm-bun-types-1.3.9.tgz",
+      "source": "https://registry.npmjs.org/bun-types/-/bun-types-1.3.9.tgz",
+      "license": "MIT",
+      "integrity": "sha512-+UBWWOakIP4Tswh0Bt0QD0alpTY8cb5hvgiYeWCMet9YukHbzuruIEeXC2D7nMJPB12kbh8C7XJykSexEqGKJg==",
+      "npmPackage": "bun-types",
+      "npmVersion": "1.3.9",
+      "sha256": "facab84d109071f48c3fcfbfeb232026a066a637f0e11287eab5f088417748d7",
+      "size": 650997
+    },
+    {
+      "path": "vendor-artifacts/npm-typescript-5.9.3.tgz",
+      "source": "https://registry.npmjs.org/typescript/-/typescript-5.9.3.tgz",
+      "license": "Apache-2.0",
+      "integrity": "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==",
+      "npmPackage": "typescript",
+      "npmVersion": "5.9.3",
+      "sha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+      "size": 4377468
+    },
+    {
+      "path": "vendor-artifacts/npm-undici-types-8.9.0.tgz",
+      "source": "https://registry.npmjs.org/undici-types/-/undici-types-8.9.0.tgz",
+      "license": "MIT",
+      "integrity": "sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==",
+      "npmPackage": "undici-types",
+      "npmVersion": "8.9.0",
+      "sha256": "3a587851ccbf1021b20eac8a38eb819d7e2a1ab77aa477cb24cae5473a3e78c6",
+      "size": 29764
+    },
+    {
+      "path": "vendor-artifacts/npm-zod-4.4.0.tgz",
+      "source": "https://registry.npmjs.org/zod/-/zod-4.4.0.tgz",
+      "license": "MIT",
+      "integrity": "sha512-932TE3dEKhhYkEZFv6meaxLaCyg1m6LSI0ETKCIyUqIim+KgIsB/kha/4CKwDEbYgMzS5QxAe2mtDPpaHLHdsQ==",
+      "npmPackage": "zod",
+      "npmVersion": "4.4.0",
+      "sha256": "adb9c3c79fa788f7a713ea53c13ba24e728ac8b2421ef8fa6e1fe47d7ba45a0e",
+      "size": 758134
+    }
+  ]
+}

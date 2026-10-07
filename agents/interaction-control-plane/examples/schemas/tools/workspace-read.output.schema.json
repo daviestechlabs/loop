@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/tools/workspace-read.output.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["files"],
+  "properties": {
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "content", "truncated"],
+        "properties": {
+          "path": {"type": "string"},
+          "content": {"type": "string"},
+          "truncated": {"type": "boolean"},
+          "sha256": {"type": "string"}
+        }
+      }
+    }
+  }
+}

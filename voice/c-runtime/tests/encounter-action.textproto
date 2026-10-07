@@ -1,0 +1,5 @@
+operation: 2
+operation_id: "action-1"
+expected_version: 2
+participant_id: "aria"
+amount: 7

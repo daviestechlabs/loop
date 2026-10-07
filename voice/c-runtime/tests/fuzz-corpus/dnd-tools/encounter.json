@@ -1,0 +1,1 @@
+{"operation":"get","operation_id":"encounter-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","campaign_id":"table","encounter_id":"battle","version":3,"status":"active","round":1,"active_index":0,"active_participant_id":"aria","participants":[{"id":"aria","name":"Aria","initiative":18,"max_hp":30,"current_hp":0,"conditions":["prone"]}]}

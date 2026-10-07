@@ -1,0 +1,39 @@
+{
+  "revision": "763c36ef9117782905ae010056dfbe8fd2653a25",
+  "files": [
+    {
+      "path": "product/loop/static/fonts/IBMPlexMono-Medium.woff2",
+      "source": "https://raw.githubusercontent.com/IBM/plex/c5f949677f6f163e8dfe98ca2c326bd48b42fa1b/packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Medium.woff2",
+      "sha256": "8c2c290cbd998fa1f647e4572aca6ebbd72589551b0f3f9f8bb8628fbb8219d5",
+      "matches": true
+    },
+    {
+      "path": "product/loop/static/fonts/IBMPlexMono-Regular.woff2",
+      "source": "https://raw.githubusercontent.com/IBM/plex/c5f949677f6f163e8dfe98ca2c326bd48b42fa1b/packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2",
+      "sha256": "49ce58b41a0e1cb921c0f58d9a5b8b96a2cc21437c7066f3ba4f24873076d131",
+      "matches": true
+    },
+    {
+      "path": "product/loop/static/fonts/IBMPlexSans-Medium.woff2",
+      "source": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans/fonts/complete/woff2/IBMPlexSans-Medium.woff2",
+      "sha256": "5660f8a658f8bb50dbc005232f885eadffd2bc1c235c4f6fbb63469d1f9cde6d",
+      "matches": true
+    },
+    {
+      "path": "product/loop/static/fonts/IBMPlexSans-Regular.woff2",
+      "source": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans/fonts/complete/woff2/IBMPlexSans-Regular.woff2",
+      "sha256": "ba711a3085ff9f27440b6b9c4550cfc47c97bf36591d5da958b975bb3add8c1a",
+      "matches": true
+    },
+    {
+      "path": "product/loop/static/fonts/IBMPlexSans-SemiBold.woff2",
+      "source": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/packages/plex-sans/fonts/complete/woff2/IBMPlexSans-SemiBold.woff2",
+      "sha256": "f78048030eab62e860efa39a0df79e2e5581bf122eb95b9bc42c0b8a4988d205",
+      "matches": true
+    }
+  ],
+  "license_source": "https://raw.githubusercontent.com/IBM/plex/763c36ef9117782905ae010056dfbe8fd2653a25/LICENSE.txt",
+  "license_sha256": "7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da",
+  "included_notice_sha256": "d741e57d5f865e294df801f96b7b5161a88b211df65887e4358d271c9fc5fb4f",
+  "notice_formatting": "LF line endings and no trailing whitespace; license words unchanged"
+}

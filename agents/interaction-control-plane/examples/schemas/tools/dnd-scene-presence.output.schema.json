@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.daviestechlabs.io/tools/dnd-scene-presence.output.schema.json",
+  "allOf": [
+    {
+      "$ref": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.output.schema.json"
+    },
+    {
+      "properties": {
+        "operation": {
+          "const": "resolve_scene_presence"
+        },
+        "campaign_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+campaign_version: 2
+expected_version: 0
+operation_id: "roll-1"
+selections { character_id: "pc-0" expression: "2d20kh1+5" }

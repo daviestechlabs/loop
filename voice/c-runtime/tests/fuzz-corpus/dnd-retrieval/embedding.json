@@ -1,0 +1,1 @@
+{"object":"list","model":"bge-m3","data":[{"object":"embedding","index":0,"embedding":[0.5,-0.25,0.75]}],"input_contract":{"pooling":"cls","truncated":false,"max_input_tokens":128,"input_tokens":[8]}}

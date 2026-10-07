@@ -1,0 +1,85 @@
+{
+  "dataset": "voice/cascade-router/testdata/dnd_routing/labeled_cases.v2.json",
+  "dataset_sha256": "639dbea601fd5ad3f46bd0322a113768df19901fc5c505577b07394961623fc8",
+  "evaluation_only_cases": 72,
+  "evaluation_only_split": "holdout",
+  "feature_dim": 256,
+  "feature_hash": "fnv1a32",
+  "features": "normalized hashed word unigrams (1.0) and bigrams (0.5)",
+  "labels": [
+    "answer",
+    "escalate",
+    "retrieve_then_escalate"
+  ],
+  "model_id": "route-logreg-fnv1a-256-v2",
+  "model_sha256": "40f4db4686aa502172e4fadb4bb46c49bdc71dd39f93a409d359b9f33c806736",
+  "optimizer": {
+    "algorithm": "deterministic online multinomial logistic regression",
+    "epochs": 400,
+    "initial_learning_rate": 0.2,
+    "l2": 1e-05,
+    "weight_quantization": "int16_q10"
+  },
+  "policy_order": [
+    "tool mutation -> escalate",
+    "bounded conversational glue -> answer",
+    "generative/reasoning -> escalate",
+    "rules/corpus/durable-memory markers -> retrieve_then_escalate",
+    "unknown interrogative -> retrieve_then_escalate",
+    "logistic fallback"
+  ],
+  "policy_plus_model_metrics": {
+    "accuracy": 1.0,
+    "category_accuracy": {
+      "campaign_lookup": 1.0,
+      "conversational": 1.0,
+      "hard_reasoning": 1.0,
+      "noisy_stt_campaign": 1.0,
+      "noisy_stt_conversational": 1.0,
+      "noisy_stt_rules": 1.0,
+      "npc_dialogue": 1.0,
+      "npc_knowledge_boundary": 1.0,
+      "phatic": 1.0,
+      "rules_lookup": 1.0,
+      "scene_narration": 1.0,
+      "tool_use": 1.0
+    },
+    "policy_cases": 216,
+    "safety_false_negatives": 0,
+    "split_accuracy": {
+      "calibration": 1.0,
+      "holdout": 1.0,
+      "validation": 1.0
+    }
+  },
+  "raw_model_metrics": {
+    "accuracy": 0.865741,
+    "category_accuracy": {
+      "campaign_lookup": 0.888889,
+      "conversational": 0.833333,
+      "hard_reasoning": 0.833333,
+      "noisy_stt_campaign": 0.888889,
+      "noisy_stt_conversational": 0.777778,
+      "noisy_stt_rules": 0.833333,
+      "npc_dialogue": 0.944444,
+      "npc_knowledge_boundary": 0.944444,
+      "phatic": 0.833333,
+      "rules_lookup": 0.888889,
+      "scene_narration": 0.888889,
+      "tool_use": 0.833333
+    },
+    "policy_cases": 0,
+    "safety_false_negatives": 3,
+    "split_accuracy": {
+      "calibration": 1.0,
+      "holdout": 0.597222,
+      "validation": 1.0
+    }
+  },
+  "schema_version": "route-classifier-training.v1",
+  "training_cases": 144,
+  "training_splits": [
+    "calibration",
+    "validation"
+  ]
+}

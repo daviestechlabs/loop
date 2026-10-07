@@ -1,0 +1,1 @@
+{"campaign_id":"table","encounter_id":"battle","owner_user_id":"user","version":2,"status":"active","round":1,"active_index":0,"participants":[{"id":"rogue","name":"Rogue","initiative":12,"max_hp":9,"current_hp":0,"conditions":["prone"]}]}

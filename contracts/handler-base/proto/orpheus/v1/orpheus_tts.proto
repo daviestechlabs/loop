@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package orpheus.v1;
+
+option go_package = "git.daviestechlabs.io/daviestechlabs/handler-base/v2/gen/orpheus/v1;orpheusv1";
+
+import "messages/v1/messages.proto";
+
+service OrpheusTTS {
+  rpc Health(HealthRequest) returns (HealthResponse);
+  // SynthesizePcm streams raw PCM chunks for low-latency audio playback / barge-in friendly delivery.
+  rpc SynthesizePcm(SynthesizeRequest) returns (stream PcmChunk);
+  // Cancel allows explicit cancellation of an in-flight SynthesizePcm stream
+  // (barge-in / turn cancellation from audio-processor / orchestrator).
+  rpc Cancel(CancelRequest) returns (CancelResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string model = 2;
+  string snac_model = 3;
+  uint32 sample_rate = 4;
+  string gpu = 5;
+  string default_voice = 6;
+}
+
+message SynthesizeRequest {
+  string text = 1;
+  string voice = 2;
+  uint32 frames_per_chunk = 3;
+  // context carries the common inference identifiers, policy, and deadline.
+  messages.v1.InferenceRequestContext context = 4;
+}
+
+message PcmChunk {
+  bytes pcm_s16le = 1;
+  uint32 sample_rate = 2;
+  uint32 channels = 3;
+  uint32 bit_depth = 4;
+  uint32 sequence = 5;
+}
+
+// CancelRequest / CancelResponse provide explicit cancellation for the
+// streaming SynthesizePcm RPC. The server should stop producing PCM chunks
+// as soon as possible.
+message CancelRequest {
+  messages.v1.InferenceRequestContext context = 1;
+  string reason = 2;  // e.g. "barge_in", "timeout", "user_cancel"
+}
+
+message CancelResponse {
+  bool accepted = 1;
+  string error = 2;
+}

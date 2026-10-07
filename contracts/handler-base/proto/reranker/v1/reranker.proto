@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package reranker.v1;
+
+option go_package = "git.daviestechlabs.io/daviestechlabs/handler-base/v2/gen/reranker/v1;rerankerv1";
+
+import "messages/v1/messages.proto";
+
+// Reranker service (BGE reranker / cross-encoder style).
+// gRPC for the inference hop to allow direct calls from Go facades.
+service Reranker {
+  rpc Rerank(RerankRequest) returns (RerankResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string model = 2;
+  string error = 3;
+}
+
+message RerankRequest {
+  messages.v1.InferenceRequestContext context = 1;
+  string query = 2;
+  repeated string documents = 3;
+  int32 top_n = 4;  // 0 = return all with scores
+}
+
+message RerankResponse {
+  repeated RerankResult results = 1;
+  string error = 2;
+}
+
+message RerankResult {
+  int32 index = 1;           // original document index
+  float relevance_score = 2;
+  float score = 3;           // legacy alias
+}

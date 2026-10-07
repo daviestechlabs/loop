@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package embeddings.v1;
+
+option go_package = "git.daviestechlabs.io/daviestechlabs/handler-base/v2/gen/embeddings/v1;embeddingsv1";
+
+import "messages/v1/messages.proto";
+
+// Embeddings service for dense vector retrieval (BGE / infinity style).
+// gRPC preferred for the model hop (see handler-base/clients).
+service Embeddings {
+  rpc Embed(EmbedRequest) returns (EmbedResponse);
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string model = 2;
+  string error = 3;
+}
+
+message EmbedRequest {
+  messages.v1.InferenceRequestContext context = 1;
+  repeated string texts = 2;
+  string model = 3;  // e.g. "bge-base-en-v1.5"
+  // future: normalize, truncation, etc.
+}
+
+message EmbedResponse {
+  repeated Embedding embeddings = 1;
+  string error = 2;
+}
+
+message Embedding {
+  repeated float values = 1;
+  int32 index = 2;  // original input order
+}

@@ -1,0 +1,1 @@
+{"tool_call_id":"start","idempotency_key":"start","session_id":"table","parent_turn_id":"turn","agent_id":"dnd-agent","tool_id":"dnd-encounter-state","input_json":"{\"operation\":\"start\",\"campaign_id\":\"table\",\"encounter_id\":\"battle\",\"expected_version\":0}"}

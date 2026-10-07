@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.output.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation", "operation_id", "campaign_id", "version", "status"],
+  "properties": {
+    "character_name": {"type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[^\\x00-\\x20\\x7f](?:[^\\x00-\\x1f\\x7f]*[^\\x00-\\x20\\x7f])?$", "description": "At most 200 UTF-8 bytes. ASCII names compare without case; other bytes compare exactly."},
+    "scene_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"},
+    "presence": {"type": "string", "enum": ["present", "absent", "unknown"]},
+    "source_turn_id": {"type":"string","pattern":"^(?:[A-Za-z0-9][A-Za-z0-9._-]{0,63})?$"},
+    "scene_observations": {"$ref":"https://schemas.daviestechlabs.io/tools/dnd-campaign-state.input.schema.json#/$defs/retained_scene_observations"},
+    "operation": {"type": "string", "enum": ["set_scene_observations", "get_scene_presence", "resolve_scene_presence", "create", "get", "get_roster", "update", "set_scene", "set_house_rule", "remove_house_rule", "upsert_character", "add_character", "remove_character", "set_character_voice", "set_character_style", "set_character_pronunciation", "configure_scene_cast", "select_speaker", "release_speaker", "interrupt_speaker", "record_session_recap", "forget_session_recap", "archive"]},
+    "operation_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "campaign_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "version": {"type": "integer", "minimum": 1},
+    "status": {"type": "string", "enum": ["active", "archived"]},
+    "character_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "rule_key": {"type": "string", "maxLength": 120},
+    "turn_id": {"type": "string", "maxLength": 128},
+    "session_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "campaign": {"$ref": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.input.schema.json#/$defs/campaign"},
+    "characters": {"type": "array", "maxItems": 200},
+    "session_recaps": {"type": "array", "maxItems": 24, "items": {"$ref": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.input.schema.json#/$defs/session_recap"}},
+    "scene_director": {"$ref": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.input.schema.json#/$defs/scene_director"}
+  },
+  "allOf": [{
+    "if": {"properties": {"operation": {"const": "get_roster"}}},
+    "then": {
+      "required": ["characters"],
+      "maxProperties": 6,
+      "properties": {
+        "version": {"maximum": 9007199254740991},
+        "characters": {"items": {
+          "type": "object", "additionalProperties": false,
+          "required": ["id", "name", "kind", "max_hp"],
+          "properties": {
+            "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"},
+            "name": {"type": "string", "minLength": 1, "maxLength": 200},
+            "kind": {"type": "string", "enum": ["player", "npc"]},
+            "max_hp": {"type": "integer", "minimum": 0, "maximum": 100000}
+          }
+        }}
+      }
+    },
+    "else": {
+      "if": {"properties": {"operation": {"enum": ["get_scene_presence", "resolve_scene_presence"]}}},
+      "then": {
+        "required": ["scene_id", "presence", "source_turn_id"],
+        "maxProperties": 9,
+        "allOf": [{"if":{"properties":{"operation":{"const":"resolve_scene_presence"}}},"then":{"required":["character_name"]},"else":{"required":["character_id"]}}, {"if": {"properties": {"presence": {"const": "unknown"}}}, "then": {"properties": {"source_turn_id": {"const": ""}}}, "else": {"properties": {"source_turn_id": {"minLength": 1}}}}]
+      },
+      "else": {
+        "required": ["characters", "campaign", "session_recaps", "scene_director"],
+        "properties": {"characters": {"items": {"$ref": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.input.schema.json#/$defs/character"}}}
+      }
+    }
+  }, {"if": {"properties": {"operation": {"const": "set_scene_observations"}}}, "then": {"required": ["scene_observations"]}, "else": {"not": {"required": ["scene_observations"]}}}]
+}

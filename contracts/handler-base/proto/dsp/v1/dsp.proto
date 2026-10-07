@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package dsp.v1;
+
+option go_package = "git.daviestechlabs.io/daviestechlabs/handler-base/v2/gen/dsp/v1;dspv1";
+
+import "messages/v1/messages.proto";
+import "vad/v1/vad.proto";
+
+// DSP (Digital Signal Processing) service / contract sketch.
+// Cohesive interface for the audio hot path between:
+//   - voice-session-gateway (WT termination, raw PCM in via datagrams)
+//   - audio-processor (VAD, energy, conditioning, endpointing, interrupt)
+//   - stt-module / tts-module facades (framing, dispatch)
+//   - future: echo cancel, resample, feature extract, etc.
+//
+// The goal is a narrow, high-performance contract (protobuf + optional
+// in-process Go interface) so we can incrementally move more DSP into
+// assembly / pure C / NPU while keeping the module boundaries clean.
+// See voice/audio-processor for current implementation and the
+// energy + Silero hybrid direction.
+//
+// This is the proposed boundary for "incremental change first" + future
+// pure-C VAD or more aggressive SIMD work.
+service DSP {
+  // Process a chunk of audio and return VAD + conditioning decisions.
+  // Used for both mic uplink and (in some profiles) TTS downlink analysis.
+  rpc ProcessAudioChunk(ProcessAudioRequest) returns (ProcessAudioResult);
+
+  // Streaming version for live sessions (preferred for low latency).
+  rpc ProcessAudioStream(stream ProcessAudioRequest) returns (stream ProcessAudioResult);
+}
+
+message ProcessAudioRequest {
+  messages.v1.InferenceRequestContext context = 1;
+  bytes pcm_s16le = 2;
+  int32 sample_rate = 3;
+  int32 channels = 4;
+  string session_id = 5;
+  // mode allows different profiles (realtime = energy only + minimal work,
+  // quality = full VAD + conditioning).
+  string mode = 6;  // "realtime", "quality"
+}
+
+message ProcessAudioResult {
+  bool is_speech = 1;
+  float energy = 2;                 // RMS or equivalent (from energy path)
+  float vad_probability = 3;        // from VAD backend (energy or ML)
+  float vad_confidence = 4;
+  bool endpoint_detected = 5;       // VAD silence timeout etc.
+  string endpoint_reason = 6;
+  bytes processed_pcm = 7;          // optional conditioned output (if enabled)
+  vad.v1.VADResult vad = 8;         // full structured VAD result
+  // interrupt signal for barge-in (also published on NATS for orchestrator)
+  bool should_interrupt = 9;
+  string interrupt_reason = 10;
+}
+
+// DSPConfig is sent at session start (or via env) to select backends
+// (energy vs ML vs future C-VAD) and tune the pipeline. This is the
+// "cohesive interface" knob for module boundaries and perf experiments.
+message DSPConfig {
+  bool enable_energy = 1;
+  float energy_threshold = 2;
+  bool enable_ml_vad = 3;           // Silero etc.
+  string ml_model_path = 4;
+  bool enable_conditioning = 5;     // noise gate, high-pass, etc.
+  // c_pure_vad_path or cgo_so for pure C backend experiment
+  string c_vad_library = 6;
+  // SIMD policy; shipped DSP uses runtime-dispatched compiler intrinsics.
+  bool prefer_simd = 7;
+}

@@ -1,0 +1,30 @@
+request_id: "req-browser-dnd"
+type: TURN_EVENT_TEXT_COMPLETED
+text: "Sneak Attack applies once per turn [1]."
+display_text: "Sneak Attack applies once per turn [1]."
+is_final: true
+retrieval {
+  citations {
+    source: "book://players-handbook"
+    book_slug: "players-handbook"
+    collection: "reviewed_books"
+    corpus_version: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    embedding_model: "bge-m3"
+    passage_id: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    document_id: "phb-document"
+    content_hash: "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    source_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    section: "Sneak Attack"
+    page_start: 96
+    page_end: 97
+    chunk_index: 0
+    score_metric: RETRIEVAL_SCORE_METRIC_NONE
+    witnesses { record_id: "1111111111111111111111111111111111111111111111111111111111111111" content_hash: "2222222222222222222222222222222222222222222222222222222222222222" page: 96 chunk: 2 begin: 2 end: 10 record_length: 30 }
+    witnesses { record_id: "3333333333333333333333333333333333333333333333333333333333333333" content_hash: "4444444444444444444444444444444444444444444444444444444444444444" page: 97 chunk: 0 begin: 0 end: 12 record_length: 40 }
+  }
+  grounding_prompt {
+    id: "rag.answer.grounded_response"
+    version: "v3"
+    sha256: "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  }
+}

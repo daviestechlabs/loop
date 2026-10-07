@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.daviestechlabs.io/tools/dnd-campaign-state.input.schema.json",
+  "$defs": {
+    "scene_observation": {"type": "object", "additionalProperties": false, "required": ["character_id", "presence", "visibility", "source_turn_id"], "properties": {"character_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}, "presence": {"type": "string", "enum": ["present", "absent", "unknown"]}, "visibility": {"type": "string", "enum": ["table", "dm"]}, "source_turn_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}}},
+    "scene_observations": {"type": "object", "additionalProperties": false, "required": ["scene_id", "entries"], "properties": {"scene_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}, "entries": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/scene_observation"}}}},
+    "retained_scene_observations": {"type": "object", "additionalProperties": false, "required": ["scene_id", "entries", "version"], "properties": {"scene_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}, "entries": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/scene_observation"}}, "version": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807}}},
+    "campaign": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "ruleset", "description", "current_scene", "house_rules"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "ruleset": {"type": "string", "minLength": 1, "maxLength": 120},
+        "description": {"type": "string", "maxLength": 4000},
+        "current_scene": {"type": "string", "maxLength": 500},
+        "house_rules": {"type": "object", "maxProperties": 100, "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 1000}}
+      }
+    },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "kind", "species", "class", "level", "armor_class", "max_hp", "ability_scores", "sheet_refs", "persona", "allowed_knowledge_scopes", "voice_id", "speaking_style", "pronunciation", "safety_rules"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 200},
+        "kind": {"type": "string", "enum": ["player", "npc"]},
+        "player_user_id": {"type": "string", "maxLength": 256},
+        "species": {"type": "string", "maxLength": 120},
+        "class": {"type": "string", "maxLength": 120},
+        "level": {"type": "integer", "minimum": 0, "maximum": 20},
+        "armor_class": {"type": "integer", "minimum": 0, "maximum": 100},
+        "max_hp": {"type": "integer", "minimum": 0, "maximum": 100000},
+        "ability_scores": {"type": "object", "additionalProperties": false, "required": ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"], "properties": {"strength": {"type": "integer", "minimum": 1, "maximum": 30}, "dexterity": {"type": "integer", "minimum": 1, "maximum": 30}, "constitution": {"type": "integer", "minimum": 1, "maximum": 30}, "intelligence": {"type": "integer", "minimum": 1, "maximum": 30}, "wisdom": {"type": "integer", "minimum": 1, "maximum": 30}, "charisma": {"type": "integer", "minimum": 1, "maximum": 30}}},
+        "sheet_refs": {"type": "object", "maxProperties": 20, "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 1000}},
+        "persona": {"type": "string", "maxLength": 4000},
+        "allowed_knowledge_scopes": {"type": "array", "maxItems": 5, "uniqueItems": true, "items": {"type": "string", "enum": ["shared_rulebook", "owned_rulebook", "campaign_canon", "session_transcript", "character_memory"]}},
+        "voice_id": {"type": "string", "maxLength": 200},
+        "speaking_style": {"type": "string", "maxLength": 500},
+        "pronunciation": {"type": "string", "maxLength": 240, "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9 .'-]{0,239})?$"},
+        "safety_rules": {"type": "array", "maxItems": 20, "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 500}}
+      }
+    },
+    "scene_director": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["active_npc_ids", "next_speaker_index", "active_speaker_id", "active_turn_id", "lease_expires_unix_ms"],
+      "properties": {
+        "active_npc_ids": {"type": "array", "maxItems": 20, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"}},
+        "next_speaker_index": {"type": "integer", "minimum": 0, "maximum": 19},
+        "active_speaker_id": {"type": "string", "maxLength": 128},
+        "active_turn_id": {"type": "string", "maxLength": 128},
+        "lease_expires_unix_ms": {"type": "integer", "minimum": 0}
+      }
+    },
+    "session_recap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["session_id", "source_turn_id", "summary", "created_at_unix_ms"],
+      "properties": {
+        "session_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+        "source_turn_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+        "summary": {"type": "string", "minLength": 1, "maxLength": 1200},
+        "created_at_unix_ms": {"type": "integer", "minimum": 1}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation", "campaign_id"],
+  "properties": {
+    "character_name": {"type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[^\\x00-\\x20\\x7f](?:[^\\x00-\\x1f\\x7f]*[^\\x00-\\x20\\x7f])?$", "description": "At most 200 UTF-8 bytes. ASCII names compare without case; other bytes compare exactly."},
+    "scene_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"},
+    "scene_observations": {"$ref": "#/$defs/scene_observations"},
+    "operation": {"type": "string", "enum": ["set_scene_observations", "get_scene_presence", "resolve_scene_presence", "create", "get", "get_roster", "update", "set_scene", "set_house_rule", "remove_house_rule", "upsert_character", "add_character", "remove_character", "set_character_voice", "set_character_style", "set_character_pronunciation", "configure_scene_cast", "select_speaker", "release_speaker", "interrupt_speaker", "record_session_recap", "forget_session_recap", "archive"]},
+    "campaign_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "expected_version": {"type": "integer", "minimum": 0},
+    "campaign": {"$ref": "#/$defs/campaign"},
+    "character": {"$ref": "#/$defs/character"},
+    "character_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "scene": {"type": "string", "minLength": 1, "maxLength": 500},
+    "rule_key": {"type": "string", "minLength": 1, "maxLength": 120},
+    "rule_value": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "voice_id": {"type": "string", "maxLength": 200},
+    "speaking_style": {"type": "string", "minLength": 1, "maxLength": 500},
+    "pronunciation": {"type": "string", "minLength": 1, "maxLength": 240, "pattern": "^[A-Za-z0-9][A-Za-z0-9 .'-]{0,239}$"},
+    "npc_ids": {"type": "array", "minItems": 1, "maxItems": 20, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"}},
+    "turn_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "session_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 1200}
+  },
+  "allOf": [
+    {"if":{"properties":{"operation":{"const":"resolve_scene_presence"}}},"then":{"required":["scene_id","character_name"],"maxProperties":4}},
+    {"if": {"properties": {"operation": {"const": "set_scene_observations"}}}, "then": {"required": ["expected_version", "scene_observations"], "maxProperties": 4, "properties": {"expected_version": {"minimum": 1, "maximum": 9223372036854775807}}}},
+    {"if": {"properties": {"operation": {"const": "get_scene_presence"}}}, "then": {"required": ["expected_version", "scene_id", "character_id"], "maxProperties": 5, "properties": {"expected_version": {"minimum": 1, "maximum": 9223372036854775807}, "character_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}}}},
+    {"if": {"properties": {"operation": {"const": "get_roster"}}}, "then": {"maxProperties": 2}},
+    {"if": {"properties": {"operation": {"const": "create"}}}, "then": {"required": ["expected_version", "campaign"], "properties": {"expected_version": {"const": 0}}}},
+    {"if": {"properties": {"operation": {"enum": ["update", "set_scene", "set_house_rule", "remove_house_rule", "upsert_character", "add_character", "remove_character", "set_character_voice", "set_character_style", "set_character_pronunciation", "configure_scene_cast", "select_speaker", "release_speaker", "interrupt_speaker", "record_session_recap", "forget_session_recap", "archive"]}}}, "then": {"required": ["expected_version"], "properties": {"expected_version": {"minimum": 1}}}},
+    {"if": {"properties": {"operation": {"const": "update"}}}, "then": {"required": ["campaign"]}},
+    {"if": {"properties": {"operation": {"const": "set_scene"}}}, "then": {"required": ["scene"]}},
+    {"if": {"properties": {"operation": {"const": "set_house_rule"}}}, "then": {"required": ["rule_key", "rule_value"]}},
+    {"if": {"properties": {"operation": {"const": "remove_house_rule"}}}, "then": {"required": ["rule_key"]}},
+    {"if": {"properties": {"operation": {"enum": ["upsert_character", "add_character"]}}}, "then": {"required": ["character"]}},
+    {"if": {"properties": {"operation": {"enum": ["remove_character", "set_character_voice", "set_character_style", "set_character_pronunciation"]}}}, "then": {"required": ["character_id"]}},
+    {"if": {"properties": {"operation": {"const": "set_character_voice"}}}, "then": {"required": ["voice_id"]}},
+    {"if": {"properties": {"operation": {"const": "set_character_style"}}}, "then": {"required": ["speaking_style"]}},
+    {"if": {"properties": {"operation": {"const": "set_character_pronunciation"}}}, "then": {"required": ["pronunciation"]}},
+    {"if": {"properties": {"operation": {"const": "configure_scene_cast"}}}, "then": {"required": ["npc_ids"]}},
+    {"if": {"properties": {"operation": {"enum": ["select_speaker", "release_speaker", "interrupt_speaker"]}}}, "then": {"required": ["turn_id"]}},
+    {"if": {"properties": {"operation": {"const": "record_session_recap"}}}, "then": {"required": ["session_id", "turn_id", "summary"]}},
+    {"if": {"properties": {"operation": {"const": "forget_session_recap"}}}, "then": {"required": ["session_id"]}}
+  ]
+}

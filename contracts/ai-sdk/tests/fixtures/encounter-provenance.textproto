@@ -1,0 +1,25 @@
+request_id: "req-browser-dnd"
+type: TURN_EVENT_TEXT_COMPLETED
+text: "Round 2. Aria acts now."
+display_text: "Round 2. Aria acts now."
+is_final: true
+tool_result {
+  tool_id: "dnd-encounter-state"
+  tool_call_id: "encounter-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  output_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  elapsed_ms: 12
+}
+dnd_encounter_state {
+  campaign_id: "campaign-1"
+  encounter_id: "encounter-1"
+  version: 7
+  status: "active"
+  round: 2
+  active_index: 0
+  active_participant_id: "aria"
+  participants { id: "aria" name: "Aria — café" initiative: 18 max_hp: 30 current_hp: 0 conditions: "prone" }
+  participants { id: "goblin" name: "Goblin" initiative: -2 max_hp: 7 current_hp: 4 }
+  tool_call_id: "encounter-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  output_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  operation: "get"
+}

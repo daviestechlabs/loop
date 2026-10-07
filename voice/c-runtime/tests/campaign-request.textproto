@@ -1,0 +1,14 @@
+operation: 2
+operation_id: "save-add"
+expected_version: 1
+character {
+  id: "pc"
+  name: "Aria"
+  kind: 1
+  species: "elf"
+  class_name: "rogue"
+  level: 3
+  armor_class: 14
+  max_hp: 23
+  ability_scores { strength: 8 dexterity: 16 constitution: 12 intelligence: 13 wisdom: 11 charisma: 14 }
+}

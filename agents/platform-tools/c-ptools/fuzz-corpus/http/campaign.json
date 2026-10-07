@@ -1,0 +1,1 @@
+{"tool_call_id":"create","idempotency_key":"create","session_id":"table","parent_turn_id":"turn","agent_id":"dnd-agent","tool_id":"dnd-campaign-state","input_json":"{\"operation\":\"create\",\"campaign_id\":\"table\",\"expected_version\":0,\"campaign\":{\"name\":\"Table\",\"ruleset\":\"5e\"}}"}

@@ -1,0 +1,1388 @@
+// Homelab AI service message contracts.
+//
+// This is the single source of truth for all NATS message types.
+// Generated Go code lives in handler-base/gen/messages/v1.
+//
+// Naming: field numbers are stable across versions — add new fields,
+// never reuse or renumber existing ones.
+
+syntax = "proto3";
+
+package messages.v1;
+
+option go_package = "git.daviestechlabs.io/daviestechlabs/handler-base/v2/gen/messages/v1;messagesv1";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Common
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ErrorResponse is the standard error reply from any handler.
+message ErrorResponse {
+  bool   error   = 1;
+  string message = 2;
+  string type    = 3;
+}
+
+// AudioEncoding identifies the wire encoding of audio payload bytes.
+enum AudioEncoding {
+  AUDIO_ENCODING_UNSPECIFIED = 0;
+  AUDIO_ENCODING_PCM_S16LE   = 1;
+  AUDIO_ENCODING_WAV         = 2;
+  AUDIO_ENCODING_OGG_OPUS    = 3;
+  AUDIO_ENCODING_MP3         = 4;
+}
+
+// STTStreamState identifies the high-level speech stream state.
+enum STTStreamState {
+  STT_STREAM_STATE_UNSPECIFIED = 0;
+  STT_STREAM_STATE_LISTENING   = 1;
+  STT_STREAM_STATE_RESPONDING  = 2;
+}
+
+// STTSpeakerStability identifies how stable a speaker assignment is.
+enum STTSpeakerStability {
+  STT_SPEAKER_STABILITY_UNSPECIFIED = 0;
+  STT_SPEAKER_STABILITY_PROVISIONAL = 1;
+  STT_SPEAKER_STABILITY_STABLE      = 2;
+}
+
+// STTLifecycleEventType identifies stream and utterance lifecycle events.
+enum STTLifecycleEventType {
+  STT_LIFECYCLE_EVENT_TYPE_UNSPECIFIED = 0;
+  STT_LIFECYCLE_EVENT_STREAM_STARTED   = 1;
+  STT_LIFECYCLE_EVENT_SPEECH_STARTED   = 2;
+  STT_LIFECYCLE_EVENT_SPEECH_ENDED     = 3;
+  STT_LIFECYCLE_EVENT_STREAM_ENDED     = 4;
+  STT_LIFECYCLE_EVENT_TYPE_TRANSCRIPTION_FAILED = 5;
+}
+
+// STTAudioSourceKind identifies the origin of captured audio.
+enum STTAudioSourceKind {
+  STT_AUDIO_SOURCE_KIND_UNSPECIFIED = 0;
+  STT_AUDIO_SOURCE_KIND_USER_MIC    = 1;
+  STT_AUDIO_SOURCE_KIND_ASSISTANT_TTS = 2;
+  STT_AUDIO_SOURCE_KIND_SYSTEM_AUDIO = 3;
+  STT_AUDIO_SOURCE_KIND_AMBIENT_ROOM = 4;
+}
+
+// InferenceRequestContext is the common context carried on all inference
+// gRPC calls (LLM chat, TTS synthesis, and future embed/rerank/STT/VAD).
+// It provides identifiers for tracing/cancellation, policy (realtime vs
+// quality vs agent), deadlines, and extensible metadata. Add new fields
+// only at the end; never renumber.
+message InferenceRequestContext {
+  string request_id = 1;
+  string turn_id = 2;
+  string session_id = 3;
+  string user_id = 4;
+  string profile = 5;           // "realtime", "quality", "agent", "quick_reply"
+  int32 priority = 6;
+  int64 deadline_unix_ms = 7;
+  map<string, string> metadata = 8;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat (companions-frontend ↔ chat-handler)
+// ─────────────────────────────────────────────────────────────────────────────
+
+// LoginEvent is published when a user authenticates.
+// Subject: ai.chat.user.{user_id}.login
+message LoginEvent {
+  string user_id   = 1;
+  string username  = 2;
+  string nickname  = 3;
+  bool   premium   = 4;
+  int64  timestamp = 5; // Unix seconds
+}
+
+// GreetingRequest asks the LLM to generate a personalised greeting.
+// Subject: ai.chat.user.{user_id}.greeting.request
+message GreetingRequest {
+  string user_id  = 1;
+  string username = 2;
+  string nickname = 3;
+  bool   premium  = 4;
+}
+
+// GreetingResponse carries the generated greeting text.
+// Subject: ai.chat.user.{user_id}.greeting.response
+message GreetingResponse {
+  string user_id  = 1;
+  string greeting = 2;
+}
+
+// ChatRequest is an incoming chat message routed via NATS.
+// Subject: ai.chat.user.{user_id}.message
+message ChatRequest {
+  string request_id       = 1;
+  string user_id          = 2;
+  string username         = 3;
+  string message          = 4;
+  string query            = 5;  // alternative to message (EffectiveQuery picks first non-empty)
+  bool   premium          = 6;
+  bool   enable_rag       = 7;
+  bool   enable_reranker  = 8;
+  bool   enable_streaming = 9;
+  int32  top_k            = 10;
+  string collection       = 11;
+  bool   enable_tts       = 12;
+  string system_prompt    = 13;
+  string response_subject = 14;
+}
+
+// ChatResponse is the full reply to a ChatRequest.
+// Subject: ai.chat.response.{request_id}  (or ChatRequest.response_subject)
+message ChatResponse {
+  string         user_id       = 1;
+  string         response      = 2;
+  string         response_text = 3;
+  bool           used_rag      = 4;
+  repeated string rag_sources  = 5;
+  bool           success       = 6;
+  bytes          audio         = 7;
+  string         error         = 8;
+}
+
+// ChatStreamChunk is one piece of a streaming LLM response.
+// Subject: ai.chat.response.stream.{request_id}
+message ChatStreamChunk {
+  string request_id = 1;
+  string type       = 2; // "chunk" | "done"
+  string content    = 3;
+  bool   done       = 4;
+  int64  timestamp  = 5;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Turn Orchestrator
+// ─────────────────────────────────────────────────────────────────────────────
+
+// TurnState is the lifecycle state for one conversational turn.
+enum TurnState {
+  TURN_STATE_UNSPECIFIED          = 0;
+  TURN_STATE_CREATED              = 1;
+  TURN_STATE_AWAITING_FIRST_TOKEN = 2;
+  TURN_STATE_STREAMING_TEXT       = 3;
+  TURN_STATE_STREAMING_AUDIO      = 4;
+  TURN_STATE_DRAINING_AUDIO       = 5;
+  TURN_STATE_COMPLETED            = 6;
+  TURN_STATE_CANCELED             = 7;
+  TURN_STATE_FAILED               = 8;
+}
+
+// TurnEventType is the canonical event vocabulary for ADR-0068 turns.
+enum TurnEventType {
+  TURN_EVENT_TYPE_UNSPECIFIED = 0;
+  TURN_EVENT_STARTED          = 1;
+  TURN_EVENT_THINKING_STARTED = 2;
+  TURN_EVENT_THINKING_ENDED   = 3;
+  TURN_EVENT_TEXT_DELTA       = 4;
+  TURN_EVENT_TEXT_COMPLETED   = 5;
+  TURN_EVENT_TTS_SEGMENT      = 6;
+  TURN_EVENT_PCM_STARTED      = 7;
+  TURN_EVENT_PCM_CHUNK        = 8;
+  TURN_EVENT_PCM_ENDED        = 9;
+  TURN_EVENT_COMPLETED        = 10;
+  TURN_EVENT_CANCELED         = 11;
+  TURN_EVENT_FAILED           = 12;
+}
+
+// Explicit final expressions chosen from an owned campaign roster.
+// The tool host checks ownership and both pinned versions before persistence.
+message DndInitiativeSelection {
+  string character_id = 1;
+  string expression = 2;
+}
+message DndInitiativeRequest {
+  int64 campaign_version = 1;
+  int64 expected_version = 2;
+  repeated DndInitiativeSelection selections = 3;
+  // Stable roll identity. Each transport attempt still has a fresh request_id.
+  string operation_id = 4;
+}
+
+// Initial authored campaign and participant data. Ownership comes from the server.
+message DndCampaignCreate {
+  string name = 1;
+  string ruleset = 2;
+}
+message DndAbilityScores {
+  uint32 strength = 1;
+  uint32 dexterity = 2;
+  uint32 constitution = 3;
+  uint32 intelligence = 4;
+  uint32 wisdom = 5;
+  uint32 charisma = 6;
+}
+message DndCharacterCreate {
+  string id = 1;
+  string name = 2;
+  uint32 kind = 3; // 1 player, 2 NPC.
+  string species = 4;
+  string class_name = 5;
+  uint32 level = 6;
+  uint32 armor_class = 7;
+  uint32 max_hp = 8;
+  DndAbilityScores ability_scores = 9;
+}
+message DndCampaignRequest {
+  uint32 operation = 1; // 1 create, 2 add character; existing characters cannot be replaced.
+  string operation_id = 2;
+  int64 expected_version = 3;
+  oneof data {
+    DndCampaignCreate campaign = 4;
+    DndCharacterCreate character = 5;
+  }
+}
+
+// Explicit mutation choices; the server verifies the signed before/after transition.
+message DndEncounterAction {
+  uint32 operation = 1; // 1 advance, 2 damage, 3 heal, 4 add condition, 5 remove condition, 6 end.
+  string operation_id = 2;
+  int64 expected_version = 3;
+  string participant_id = 4;
+  uint32 amount = 5;
+  uint32 condition = 6; // 1..14 in the canonical alphabetical condition catalog; zero when absent.
+  uint32 damage_type = 7; // 1..13 in the canonical alphabetical damage catalog; zero when unspecified.
+}
+
+// TurnStartRequest is the orchestrator entrypoint for a new user turn.
+// Subject: ai.turn.start
+message TurnStartRequest {
+  string request_id       = 1;
+  string user_id          = 2;
+  string session_id       = 3;
+  string username         = 4;
+  string text             = 5;
+  bool   premium          = 6;
+  bool   enable_rag       = 7;
+  bool   enable_tts       = 8;
+  string system_prompt    = 9;
+  string voice_id         = 10;
+  string response_subject = 11;
+  map<string, string> metadata = 12;
+  int64 audio_committed_at_ms = 13;
+  int64 stt_request_received_at_ms = 14;
+  int64 stt_provider_request_started_at_ms = 15;
+  int64 stt_provider_ready_at_ms = 16;
+  int64 stt_transcript_published_at_ms = 17;
+  DndInitiativeRequest dnd_initiative = 18;
+  DndCampaignRequest dnd_campaign = 19;
+  DndEncounterAction dnd_encounter_action = 20;
+  // Set only by the trusted edge from a signed capture capability.
+  bool model_request_capture = 21;
+}
+
+// TurnCancelRequest asks the orchestrator to stop an in-flight turn.
+// Subject: ai.turn.cancel
+message TurnCancelRequest {
+  string request_id = 1;
+  string user_id    = 2;
+  string reason     = 3;
+}
+
+// TurnStartResponse acknowledges that the orchestrator accepted a turn.
+// Subject: reply-to on ai.turn.start request-reply
+message TurnStartResponse {
+  string    request_id    = 1;
+  bool      accepted      = 2;
+  TurnState state         = 3;
+  int64     accepted_at   = 4; // Unix milliseconds
+  string    event_subject = 5;
+}
+
+// TurnTTSSegmentRequest asks the TTS worker to synthesize one speakable segment.
+// Subject: ai.turn.tts.speak
+message TurnTTSSegmentRequest {
+  string request_id    = 1;
+  string user_id       = 2;
+  string text          = 3;
+  string voice_id      = 4;
+  string response_subject = 5;
+  int32  segment_index = 6;
+  bool   is_final      = 7;
+  int32  output_sample_rate = 8;
+  int32  output_channels    = 9;
+  int32  output_bit_depth   = 10;
+  AudioEncoding output_encoding = 11;
+  fixed32 query_hash = 12; // Turn/RAG correlation carried into TTS telemetry
+  int64 first_text_at_ms = 13; // Monotonic-projected Unix milliseconds
+  int64 segment_emitted_at_ms = 14; // Monotonic-projected Unix milliseconds
+  int64 audio_committed_at_ms = 15;
+  int64 stt_request_received_at_ms = 16;
+  int64 stt_provider_request_started_at_ms = 17;
+  int64 stt_provider_ready_at_ms = 18;
+  int64 stt_transcript_published_at_ms = 19;
+  // The last PCM frame waits for a successor or an empty final marker.
+  bool stream_finality_deferred = 20;
+}
+
+// DndEncounterParticipant is the product-safe projection of one participant
+// in the governed dnd-encounter-state aggregate. It contains no tool input or
+// artifact URI.
+message DndEncounterParticipant {
+  string id          = 1;
+  string name        = 2;
+  sint32 initiative  = 3;
+  int32 max_hp       = 4;
+  int32 current_hp   = 5;
+  repeated string conditions = 6;
+}
+
+// DndEncounterState is attached only after cascade validates the complete
+// governed tool output, call identity, output hash, artifact, and state
+// transition. Product clients must still bind campaign/encounter IDs to their
+// current authenticated table context and reject stale/conflicting versions.
+message DndEncounterState {
+  string campaign_id          = 1;
+  string encounter_id         = 2;
+  int64 version               = 3;
+  string status               = 4;
+  int32 round                 = 5;
+  sint32 active_index         = 6;
+  string active_participant_id = 7;
+  repeated DndEncounterParticipant participants = 8;
+  string tool_call_id         = 9;
+  string output_sha256        = 10;
+  string operation            = 11;
+}
+
+// ToolResultProvenance identifies a validated, authenticated tool result.
+// The cascade checks the saved output, artifact hash, and arithmetic first.
+// This projection contains no tool input, secret, or filesystem path.
+message ToolResultProvenance {
+  string tool_id = 1;
+  string tool_call_id = 2;
+  string output_sha256 = 3;
+  int64 elapsed_ms = 4;
+}
+
+// Minimal owned roster. Player account references and knowledge scopes stay private.
+message DndCampaignCharacter {
+  string id = 1;
+  string name = 2;
+  string kind = 3;
+  int32 max_hp = 4;
+}
+message DndCampaignRoster {
+  string campaign_id = 1;
+  int64 version = 2;
+  string status = 3;
+  repeated DndCampaignCharacter characters = 4;
+  string tool_call_id = 5;
+  string output_sha256 = 6;
+}
+message DndInitiativeRoll {
+  string character_id = 1;
+  string expression = 2;
+  repeated uint32 rolls = 3;
+  repeated uint32 kept_indices = 4;
+  sint32 total = 5;
+  string entropy_source = 6;
+}
+// Bound to the same event's encounter snapshot and signed tool provenance.
+message DndInitiativeResult {
+  int64 campaign_version = 1;
+  string campaign_sha256 = 2;
+  repeated DndInitiativeRoll rolls = 3;
+}
+
+// TurnEvent is the canonical event envelope for turn-scoped streaming.
+// Subject: ai.turn.events.{request_id}
+message TurnEvent {
+  string        request_id    = 1;
+  string        user_id       = 2;
+  TurnEventType type          = 3;
+  TurnState     state         = 4;
+  // Legacy display-safe alias. New producers populate speech_text and
+  // display_text explicitly; new consumers should use those fields.
+  string        text          = 5;
+  bytes         audio         = 6;
+  int32         sample_rate   = 7;
+  int32         channels      = 8;
+  int32         bit_depth     = 9;
+  int32         sequence      = 10;
+  int32         segment_index = 11;
+  bool          is_final      = 12;
+  int64         timestamp     = 13;
+  string        error         = 14;
+  AudioEncoding audio_encoding = 15;
+  map<string, string> metadata = 16;
+  // Spoken-channel model output. It may contain versioned Orpheus direction
+  // tags and must still pass the TTS entrypoint sanitizer.
+  string        speech_text   = 17;
+  // User-visible text with all tag-like angle markup removed.
+  string        display_text  = 18;
+  // Validated governed encounter projection for product hydration. Never
+  // populate this from caller metadata or model-authored text.
+  DndEncounterState dnd_encounter_state = 19;
+  ToolResultProvenance tool_result = 20;
+  // Sources admitted by retrieval before generation. These do not prove that
+  // every generated claim is supported by the sources.
+  RetrievalProvenance retrieval = 21;
+  DndCampaignRoster dnd_campaign_roster = 22;
+  DndInitiativeResult dnd_initiative_result = 23;
+}
+
+message RetrievalProvenance {
+  repeated RetrievalCitation citations = 1;
+  // Identity of the canonical system text actually sent to the model.
+  GroundingPromptIdentity grounding_prompt = 2;
+}
+
+message GroundingPromptIdentity {
+  string id = 1;
+  string version = 2;
+  string sha256 = 3;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Agent Task Plane
+// ─────────────────────────────────────────────────────────────────────────────
+
+// AgentTaskState is the durable lifecycle state for one background agent task.
+enum AgentTaskState {
+  AGENT_TASK_STATE_UNSPECIFIED = 0;
+  AGENT_TASK_STATE_CREATED     = 1;
+  AGENT_TASK_STATE_QUEUED      = 2;
+  AGENT_TASK_STATE_RUNNING     = 3;
+  AGENT_TASK_STATE_COMPLETED   = 4;
+  AGENT_TASK_STATE_FAILED      = 5;
+  AGENT_TASK_STATE_CANCELED    = 6;
+}
+
+// AgentTaskEventType is the event vocabulary for replayable task streams.
+enum AgentTaskEventType {
+  AGENT_TASK_EVENT_TYPE_UNSPECIFIED = 0;
+  AGENT_TASK_EVENT_STARTED          = 1;
+  AGENT_TASK_EVENT_QUEUED           = 2;
+  AGENT_TASK_EVENT_PROGRESS         = 3;
+  AGENT_TASK_EVENT_ARTIFACT         = 4;
+  AGENT_TASK_EVENT_COMPLETED        = 5;
+  AGENT_TASK_EVENT_FAILED           = 6;
+  AGENT_TASK_EVENT_CANCELED         = 7;
+}
+
+// AgentTaskRetryPolicy controls retry behavior for worker dispatch.
+message AgentTaskRetryPolicy {
+  int32 max_attempts       = 1;
+  int32 backoff_ms         = 2;
+  int32 max_backoff_ms     = 3;
+  bool  retry_on_timeout   = 4;
+}
+
+// AgentTaskArtifactRef points to task output stored outside the event stream.
+message AgentTaskArtifactRef {
+  string id           = 1;
+  string kind         = 2;
+  string uri          = 3;
+  string content_type = 4;
+  int64  size_bytes   = 5;
+  string sha256       = 6;
+  map<string, string> metadata = 7;
+}
+
+// AgentTaskStartRequest creates or resumes a durable background task.
+// Subject: ai.agent.task.start
+message AgentTaskStartRequest {
+  string task_id          = 1;
+  string idempotency_key  = 2;
+  string parent_turn_id   = 3;
+  string user_id          = 4;
+  string session_id       = 5;
+  string profile          = 6;
+  string agent_id         = 7;
+  string input_json       = 8;
+  int64  deadline_unix_ms = 9;
+  AgentTaskRetryPolicy retry_policy = 10;
+  string response_subject = 11;
+  map<string, string> metadata = 12;
+}
+
+// AgentTaskStartResponse acknowledges task creation or idempotent lookup.
+// Subject: reply-to on ai.agent.task.start request-reply
+message AgentTaskStartResponse {
+  string task_id       = 1;
+  bool   accepted      = 2;
+  AgentTaskState state = 3;
+  string event_subject = 4;
+  int64  accepted_at   = 5;
+  string error         = 6;
+}
+
+// AgentTaskCancelRequest asks the manager to cancel a task.
+// Subject: ai.agent.task.cancel
+message AgentTaskCancelRequest {
+  string task_id = 1;
+  string user_id = 2;
+  string reason  = 3;
+  map<string, string> metadata = 4;
+}
+
+// AgentTaskEvent is the replayable event envelope for background task progress.
+// Subject: ai.agent.task.events.{task_id}
+message AgentTaskEvent {
+  string task_id        = 1;
+  string parent_turn_id = 2;
+  string user_id        = 3;
+  string session_id     = 4;
+  string agent_id       = 5;
+  AgentTaskState state  = 6;
+  AgentTaskEventType type = 7;
+  int32  sequence       = 8;
+  string text           = 9;
+  double progress       = 10;
+  repeated AgentTaskArtifactRef artifact_refs = 11;
+  string error          = 12;
+  int64  timestamp      = 13;
+  map<string, string> metadata = 14;
+}
+
+// AgentTaskDispatchRequest asks a concrete worker to execute a task attempt.
+// Subject: ai.agent.task.dispatch.{agent_id}
+message AgentTaskDispatchRequest {
+  string task_id          = 1;
+  string agent_id         = 2;
+  string input_json       = 3;
+  int64  deadline_unix_ms = 4;
+  int32  attempt          = 5;
+  map<string, string> metadata = 6;
+}
+
+// AgentTaskDispatchResponse is returned by a worker when an attempt completes.
+message AgentTaskDispatchResponse {
+  string task_id = 1;
+  bool   accepted = 2;
+  repeated AgentTaskArtifactRef artifact_refs = 3;
+  string summary = 4;
+  string error = 5;
+  map<string, string> metadata = 6;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tool Execution Plane
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ToolRiskLevel describes how much governance a tool call requires.
+enum ToolRiskLevel {
+  TOOL_RISK_LEVEL_UNSPECIFIED = 0;
+  TOOL_RISK_LEVEL_LOW         = 1;
+  TOOL_RISK_LEVEL_MEDIUM      = 2;
+  TOOL_RISK_LEVEL_HIGH        = 3;
+  TOOL_RISK_LEVEL_DESTRUCTIVE = 4;
+  TOOL_RISK_LEVEL_EXTERNAL    = 5;
+}
+
+// ToolCallState is the durable lifecycle state for one tool call.
+enum ToolCallState {
+  TOOL_CALL_STATE_UNSPECIFIED       = 0;
+  TOOL_CALL_STATE_REQUESTED         = 1;
+  TOOL_CALL_STATE_AWAITING_APPROVAL = 2;
+  TOOL_CALL_STATE_APPROVED          = 3;
+  TOOL_CALL_STATE_REJECTED          = 4;
+  TOOL_CALL_STATE_QUEUED            = 5;
+  TOOL_CALL_STATE_RUNNING           = 6;
+  TOOL_CALL_STATE_COMPLETED         = 7;
+  TOOL_CALL_STATE_FAILED            = 8;
+  TOOL_CALL_STATE_CANCELED          = 9;
+}
+
+// ToolCallEventType is the audit vocabulary for replayable tool calls.
+enum ToolCallEventType {
+  TOOL_CALL_EVENT_TYPE_UNSPECIFIED = 0;
+  TOOL_CALL_EVENT_REQUESTED        = 1;
+  TOOL_CALL_EVENT_APPROVAL_REQUESTED = 2;
+  TOOL_CALL_EVENT_APPROVED         = 3;
+  TOOL_CALL_EVENT_REJECTED         = 4;
+  TOOL_CALL_EVENT_STARTED          = 5;
+  TOOL_CALL_EVENT_PROGRESS         = 6;
+  TOOL_CALL_EVENT_ARTIFACT         = 7;
+  TOOL_CALL_EVENT_COMPLETED        = 8;
+  TOOL_CALL_EVENT_FAILED           = 9;
+  TOOL_CALL_EVENT_CANCELED         = 10;
+}
+
+// ToolSchemaRef identifies the registry schema contract used by a tool.
+message ToolSchemaRef {
+  string uri     = 1;
+  string version = 2;
+  string sha256  = 3;
+}
+
+// ToolSandboxPolicy captures where and how a tool must execute.
+message ToolSandboxPolicy {
+  bool   required        = 1;
+  string runtime         = 2;
+  string namespace       = 3;
+  string service_account = 4;
+  string network_policy  = 5;
+  map<string, string> node_selector = 6;
+}
+
+// ToolSecretScope describes a secret a tool may access and the scope it grants.
+message ToolSecretScope {
+  string name  = 1;
+  string scope = 2;
+}
+
+// ToolArtifactPolicy describes where outputs are persisted and retained.
+message ToolArtifactPolicy {
+  string store = 1;
+  repeated string content_types = 2;
+  string retention = 3;
+}
+
+// ToolArtifactRef points to tool output stored outside the event stream.
+message ToolArtifactRef {
+  string id           = 1;
+  string kind         = 2;
+  string uri          = 3;
+  string content_type = 4;
+  int64  size_bytes   = 5;
+  string sha256       = 6;
+  map<string, string> metadata = 7;
+}
+
+// ToolDefinitionSnapshot is copied from the registry at call time for audit.
+message ToolDefinitionSnapshot {
+  string tool_id      = 1;
+  string name         = 2;
+  string version      = 3;
+  ToolSchemaRef input_schema  = 4;
+  ToolSchemaRef output_schema = 5;
+  string auth_scope   = 6;
+  ToolRiskLevel risk_level = 7;
+  int64 timeout_ms    = 8;
+  bool approval_required = 9;
+  ToolSandboxPolicy sandbox = 10;
+  repeated ToolSecretScope secrets = 11;
+  ToolArtifactPolicy artifact_policy = 12;
+  repeated string metrics = 13;
+  map<string, string> metadata = 14;
+}
+
+// ToolCallStartRequest creates or resumes one governed tool call.
+// Subject: ai.tool.call.start
+message ToolCallStartRequest {
+  string tool_call_id    = 1;
+  string idempotency_key = 2;
+  string parent_task_id  = 3;
+  string parent_turn_id  = 4;
+  string user_id         = 5;
+  string session_id      = 6;
+  string agent_id        = 7;
+  string tool_id         = 8;
+  string input_json      = 9;
+  int64  deadline_unix_ms = 10;
+  ToolDefinitionSnapshot tool = 11;
+  string response_subject = 12;
+  map<string, string> metadata = 13;
+}
+
+// ToolCallStartResponse acknowledges creation or idempotent lookup.
+message ToolCallStartResponse {
+  string tool_call_id = 1;
+  bool accepted = 2;
+  ToolCallState state = 3;
+  string event_subject = 4;
+  int64 accepted_at = 5;
+  string error = 6;
+}
+
+// ToolCallApprovalRequest asks an approval authority to approve or reject.
+// Subject: ai.tool.call.approval.request
+message ToolCallApprovalRequest {
+  string tool_call_id = 1;
+  string user_id = 2;
+  string agent_id = 3;
+  string tool_id = 4;
+  ToolRiskLevel risk_level = 5;
+  string auth_scope = 6;
+  string input_summary = 7;
+  int64 requested_at = 8;
+  map<string, string> metadata = 9;
+}
+
+// ToolCallApprovalDecision records the approval decision.
+// Subject: ai.tool.call.approval.decision
+message ToolCallApprovalDecision {
+  string tool_call_id = 1;
+  bool approved = 2;
+  string approver_id = 3;
+  string reason = 4;
+  int64 decided_at = 5;
+  map<string, string> metadata = 6;
+}
+
+// ToolCallCancelRequest asks the tool manager to cancel one call.
+// Subject: ai.tool.call.cancel
+message ToolCallCancelRequest {
+  string tool_call_id = 1;
+  string user_id = 2;
+  string reason = 3;
+  map<string, string> metadata = 4;
+}
+
+// ToolCallEvent is the replayable audit envelope for one tool call.
+// Subject: ai.tool.call.events.{tool_call_id}
+message ToolCallEvent {
+  string tool_call_id = 1;
+  string parent_task_id = 2;
+  string parent_turn_id = 3;
+  string user_id = 4;
+  string session_id = 5;
+  string agent_id = 6;
+  string tool_id = 7;
+  ToolCallState state = 8;
+  ToolCallEventType type = 9;
+  ToolRiskLevel risk_level = 10;
+  int32 sequence = 11;
+  string text = 12;
+  double progress = 13;
+  repeated ToolArtifactRef artifact_refs = 14;
+  string error = 15;
+  int64 timestamp = 16;
+  map<string, string> metadata = 17;
+}
+
+// ToolCallDispatchRequest asks a concrete sandbox/worker to execute the call.
+// Subject: ai.tool.call.dispatch.{tool_id}
+message ToolCallDispatchRequest {
+  string tool_call_id = 1;
+  string tool_id = 2;
+  string input_json = 3;
+  int64 deadline_unix_ms = 4;
+  ToolDefinitionSnapshot tool = 5;
+  map<string, string> metadata = 6;
+}
+
+// ToolCallDispatchResponse is returned by the sandbox/worker.
+message ToolCallDispatchResponse {
+  string tool_call_id = 1;
+  bool accepted = 2;
+  string output_json = 3;
+  repeated ToolArtifactRef artifact_refs = 4;
+  string summary = 5;
+  string error = 6;
+  map<string, string> metadata = 7;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Voice Assistant
+// ─────────────────────────────────────────────────────────────────────────────
+
+// VoiceRequest is an incoming voice-to-voice request.
+// Subject: ai.voice.request
+message VoiceRequest {
+  string request_id = 1;
+  bytes  audio      = 2;
+  string language   = 3;
+  string collection = 4;
+}
+
+// DocumentSource is a single RAG search-result citation.
+message DocumentSource {
+  string text  = 1;
+  double score = 2;
+}
+
+// VoiceResponse is the reply to a VoiceRequest.
+// Subject: ai.voice.response.{request_id}
+message VoiceResponse {
+  string                   request_id    = 1;
+  string                   response      = 2;
+  bytes                    audio         = 3;
+  string                   transcription = 4;
+  repeated DocumentSource  sources       = 5;
+  string                   error         = 6;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TTS Module
+// ─────────────────────────────────────────────────────────────────────────────
+
+// TTSRequest is retained for wire compatibility only. Its subject is retired;
+// active synthesis uses TurnTTSSegmentRequest on ai.turn.tts.speak.
+message TTSRequest {
+  string text            = 1;
+  string speaker         = 2;
+  string language        = 3;
+  string speaker_wav_b64 = 4;
+  bool   stream          = 5;
+}
+
+// TTSAudioChunk is retained for wire compatibility only. Its subject is
+// retired; active PCM is carried by turn-scoped TurnEvent messages.
+message TTSAudioChunk {
+  string session_id   = 1;
+  int32  chunk_index  = 2;
+  int32  total_chunks = 3;
+  bytes  audio        = 4;
+  bool   is_last      = 5;
+  int64  timestamp    = 6;
+  int32  sample_rate  = 7;
+  int32  channels      = 8;
+  int32  bit_depth     = 9;
+  AudioEncoding audio_encoding = 10;
+}
+
+// TTSFullResponse is retired. Use turn-scoped TurnEvent PCM.
+message TTSFullResponse {
+  string session_id  = 1;
+  bytes  audio       = 2;
+  int64  timestamp   = 3;
+  int32  sample_rate = 4;
+  int32  channels      = 5;
+  int32  bit_depth     = 6;
+  AudioEncoding audio_encoding = 7;
+}
+
+// TTSStatus is a TTS processing status update.
+// Subject: ai.voice.tts.status.{session_id}
+message TTSStatus {
+  string session_id = 1;
+  string status     = 2;
+  string message    = 3;
+  int64  timestamp  = 4;
+}
+
+// TTSVoiceInfo is summary info about a custom voice.
+message TTSVoiceInfo {
+  string name       = 1;
+  string language   = 2;
+  string model_type = 3;
+  string created_at = 4;
+}
+
+// TTSVoiceListResponse is the reply to a voice list request.
+// Subject: ai.voice.tts.voices.list  (request-reply)
+message TTSVoiceListResponse {
+  string                  default_speaker = 1;
+  repeated TTSVoiceInfo   custom_voices   = 2;
+  int64                   last_refresh    = 3;
+  int64                   timestamp       = 4;
+}
+
+// TTSVoiceRefreshResponse is the reply to a voice refresh request.
+// Subject: ai.voice.tts.voices.refresh  (request-reply)
+message TTSVoiceRefreshResponse {
+  int32                   count         = 1;
+  repeated TTSVoiceInfo   custom_voices = 2;
+  int64                   timestamp     = 3;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STT Module
+// ─────────────────────────────────────────────────────────────────────────────
+
+// STTStreamMessage is any message on the ai.voice.stream.{session_id} subject.
+message STTStreamMessage {
+  string type       = 1; // "start" | "chunk" | "state_change" | "end"
+  bytes  audio      = 2;
+  string state      = 3;
+  string speaker_id = 4;
+  int32  sample_rate = 5;
+  int32  channels = 6;
+  int32  bit_depth = 7;
+  AudioEncoding audio_encoding = 8;
+  int64  timestamp = 9;
+  string request_id = 10;
+  string utterance_id = 11;
+  STTStreamState stream_state = 12;
+  string user_id = 13;
+  string source_id = 14;
+  string device_id = 15;
+  string microphone_id = 16;
+  STTAudioSourceKind source_kind = 17;
+  string participant_label = 18;
+}
+
+// STTTranscription is the transcription result published by the STT module.
+// Subject: ai.voice.transcription.{session_id}
+message STTTranscription {
+  string session_id         = 1;
+  string transcript         = 2;
+  int32  sequence           = 3;
+  bool   is_partial         = 4;
+  bool   is_final           = 5;
+  int64  timestamp          = 6;
+  string speaker_id         = 7;
+  bool   has_voice_activity = 8;
+  string state              = 9;
+  string utterance_id       = 10;
+  int32  revision           = 11;
+  float  transcript_stability = 12;
+  int64  started_at_ms      = 13;
+  int64  ended_at_ms        = 14;
+  float  speaker_confidence = 15;
+  STTSpeakerStability speaker_stability = 16;
+  bool   commit_for_turn    = 17;
+  STTStreamState stream_state = 18;
+  string user_id = 19;
+  string source_id = 20;
+  string device_id = 21;
+  string microphone_id = 22;
+  STTAudioSourceKind source_kind = 23;
+  string participant_label = 24;
+  // Non-identifying, C-owned fusion state. False is the fail-closed default
+  // when no fresh, validated DndVisionEvent is available.
+  bool group_deliberating = 25;
+  int64 audio_committed_at_ms = 26;
+  int64 stt_request_received_at_ms = 27;
+  int64 stt_provider_request_started_at_ms = 28;
+  int64 stt_provider_ready_at_ms = 29;
+}
+
+// STTInterrupt is published when the STT module detects a user interrupt.
+// Subject: ai.voice.transcription.{session_id}
+message STTInterrupt {
+  string session_id = 1;
+  string type       = 2; // "interrupt"
+  int64  timestamp  = 3;
+  string speaker_id = 4;
+  string utterance_id = 5;
+  STTStreamState stream_state = 6;
+  float  audio_level = 7;
+  string user_id = 8;
+  string source_id = 9;
+  STTAudioSourceKind source_kind = 10;
+  // Derived only from bounded structured vision plus local audio state.
+  bool group_deliberating = 11;
+}
+
+// STTSpeakerUpdate revises the speaker assignment for an utterance.
+// Subject: ai.voice.transcription.{session_id}
+message STTSpeakerUpdate {
+  string session_id = 1;
+  string utterance_id = 2;
+  // Positive, strictly increasing assignment revision within one utterance.
+  int32  sequence = 3;
+  string speaker_id = 4;
+  float  speaker_confidence = 5;
+  STTSpeakerStability speaker_stability = 6;
+  int64  timestamp = 7;
+  bool   is_final = 8;
+  string user_id = 9;
+  // Exact accepted request-bound audio-source scope from the observed transcript.
+  string source_id = 10;
+  string participant_label = 11;
+}
+
+// STTLifecycleEvent publishes stream and utterance lifecycle markers.
+// Subject: ai.voice.transcription.{session_id}
+message STTLifecycleEvent {
+  string session_id = 1;
+  string utterance_id = 2;
+  STTLifecycleEventType type = 3;
+  int32  sequence = 4;
+  int64  timestamp = 5;
+  STTStreamState stream_state = 6;
+  bool   has_voice_activity = 7;
+  string user_id = 8;
+  string source_id = 9;
+  string device_id = 10;
+  string microphone_id = 11;
+  STTAudioSourceKind source_kind = 12;
+  string participant_label = 13;
+  string endpoint_reason = 14;
+  int64  speech_duration_ms = 15;
+  int64  silence_duration_ms = 16;
+  float  audio_level = 17;
+  float  vad_confidence = 18;
+  // Derived only from bounded structured vision plus local audio state.
+  bool group_deliberating = 19;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RAG Gateway
+// ─────────────────────────────────────────────────────────────────────────────
+
+// RAGSearchRequest carries a server-admitted retrieval request over VBus.
+// Subject: ai.rag.search
+message RAGSearchRequest {
+  string request_id = 1;
+  string user_id = 2;
+  string query = 3;
+  string collection = 4;
+  int32  top_k = 5;
+  int32  rerank_top_k = 6;
+  bool   enable_rerank = 7;
+  string session_id = 8;
+  string knowledge_scope = 9;
+  string campaign_id = 10;
+  string character_id = 11;
+  // The authenticated gateway supplies premium; client metadata cannot set it.
+  bool premium = 12;
+  int64 deadline_unix_ms = 13;
+}
+
+enum RetrievalScoreMetric {
+  // An omitted metric retains legacy cosine semantics.
+  RETRIEVAL_SCORE_METRIC_UNSPECIFIED = 0;
+  RETRIEVAL_SCORE_METRIC_BM25 = 1;
+  // An exact record fetch has no ranking score. Its score field must be zero.
+  RETRIEVAL_SCORE_METRIC_NONE = 2;
+}
+
+// RetrievalCitation identifies exact admitted text and its ingested source.
+// Record citations verify content_hash against the full original record.
+// Complete passages use passage_id with an empty record_id. Their content_hash
+// identifies the assembly; witnesses retain each complete original record hash.
+// source_sha256 is asserted by trusted ingestion, without a runtime source-file fetch.
+message RetrievalCitation {
+  string source = 1;
+  string book_slug = 2;
+  string collection = 3;
+  string corpus_version = 4;
+  string embedding_model = 5;
+  string record_id = 6;
+  string document_id = 7;
+  string content_hash = 8;
+  string source_sha256 = 9;
+  string section = 10;
+  int32 page_start = 11;
+  int32 page_end = 12;
+  int32 chunk_index = 13;
+  double score = 14;
+  // Metric zero preserves cosine citations. NONE requires a zero score placeholder.
+  RetrievalScoreMetric score_metric = 15;
+  // Optional exact model excerpts from the original record. Empty means full text.
+  // Sorted nonadjacent half-open UTF-8 byte ranges; at most eight per record.
+  repeated RetrievalByteSpan excerpt_spans = 16;
+  // Domain-separated assembly/witness identity. Mutually exclusive with record_id.
+  string passage_id = 17;
+  // One to sixteen original records in assembly order. Empty for record citations.
+  // Passage citations require empty excerpt_spans, NONE score metric, and chunk_index=0.
+  repeated RetrievalPassageWitness witnesses = 18;
+}
+
+message RetrievalPassageWitness {
+  string record_id = 1;
+  string content_hash = 2;
+  uint32 page = 3;
+  uint32 chunk = 4;
+  uint32 begin = 5;
+  uint32 end = 6;
+  uint32 record_length = 7;
+}
+
+message RetrievalByteSpan {
+  uint32 begin = 1;
+  uint32 end = 2;
+}
+
+// RAGDocument is a single retrieved document with its relevance score.
+message RAGDocument {
+  string content = 1;
+  string source  = 2;
+  double score   = 3;
+  int32  index   = 4;
+  map<string, string> metadata = 5;
+  RetrievalCitation provenance = 6;
+}
+
+// RAGSearchResponse is the reply from rag-gateway with ranked documents.
+message RAGSearchResponse {
+  string request_id = 1;
+  repeated RAGDocument documents = 2;
+  string context_text = 3;
+  bool   used_rag = 4;
+  string error = 5;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Session Manager
+// ─────────────────────────────────────────────────────────────────────────────
+
+// SessionMessage represents a single message in a conversation session.
+message SessionMessage {
+  string role = 1;      // "user", "assistant", "system"
+  string content = 2;
+  int64  timestamp = 3;
+  string request_id = 4;
+  map<string, string> metadata = 5;
+}
+
+// SessionAppendRequest adds a message to a session's history.
+// Subject: ai.session.append
+message SessionAppendRequest {
+  string session_id = 1;
+  string user_id = 2;
+  SessionMessage message = 3;
+}
+
+// SessionAppendResponse acknowledges the append.
+message SessionAppendResponse {
+  string session_id = 1;
+  int32  message_count = 2;
+}
+
+// SessionGetRequest retrieves recent conversation history.
+// Subject: ai.session.get
+message SessionGetRequest {
+  string session_id = 1;
+  string user_id = 2;
+  int32  last_n = 3;  // 0 = all
+}
+
+// SessionGetResponse returns the conversation history.
+message SessionGetResponse {
+  string session_id = 1;
+  repeated SessionMessage messages = 2;
+}
+
+// SessionSummaryRequest retrieves a materialized long-term session summary.
+// Subject: ai.session.summary.get
+message SessionSummaryRequest {
+  string session_id = 1;
+  string user_id = 2;
+}
+
+// SessionSummaryResponse returns the current materialized summary, if any.
+message SessionSummaryResponse {
+  string session_id = 1;
+  string user_id = 2;
+  string summary = 3;
+  string source = 4;
+  int64  updated_at = 5;
+  map<string, string> metadata = 6;
+}
+
+// SessionSummaryUpsertRequest writes a materialized long-term session summary.
+// Subject: ai.session.summary.upsert
+message SessionSummaryUpsertRequest {
+  string session_id = 1;
+  string user_id = 2;
+  string summary = 3;
+  string source = 4;
+  int64  updated_at = 5;
+  map<string, string> metadata = 6;
+}
+
+// SessionSummaryUpsertResponse acknowledges summary persistence.
+message SessionSummaryUpsertResponse {
+  string session_id = 1;
+  bool   updated = 2;
+}
+
+// SessionSummaryMaterializeRequest asks a materializer to refresh a session summary.
+// Subject: ai.session.summary.materialize
+message SessionSummaryMaterializeRequest {
+  string session_id = 1;
+  string user_id = 2;
+  string reason = 3;
+  int32  max_messages = 4;
+}
+
+// SessionSummaryMaterializeResponse acknowledges summary materialization work.
+message SessionSummaryMaterializeResponse {
+  string session_id = 1;
+  bool   updated = 2;
+  string source = 3;
+  string kind = 4;
+}
+
+// SessionDeleteRequest clears a session's history.
+// Subject: ai.session.delete
+message SessionDeleteRequest {
+  string session_id = 1;
+  string user_id = 2;
+}
+
+// SessionDeleteResponse acknowledges the delete.
+message SessionDeleteResponse {
+  string session_id = 1;
+  bool   deleted = 2;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Memory Events
+// ─────────────────────────────────────────────────────────────────────────────
+
+// MemoryTurnCompletedEvent is emitted after a conversational turn completes.
+// Subject: ai.memory.events.turn_completed
+message MemoryTurnCompletedEvent {
+  string request_id = 1;
+  string user_id = 2;
+  string session_id = 3;
+  string user_text = 4;
+  string assistant_text = 5;
+  int64  started_at = 6;
+  int64  completed_at = 7;
+  map<string, string> metadata = 8;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pipeline Bridge
+// ─────────────────────────────────────────────────────────────────────────────
+
+// PipelineTrigger is the request to start a pipeline.
+// Subject: ai.pipeline.trigger
+message PipelineTrigger {
+  string request_id = 1;
+  string pipeline   = 2;
+  // Protobuf Struct could be used here, but a simple string map covers
+  // all current use-cases and avoids a google/protobuf import.
+  map<string, string> parameters = 3;
+}
+
+// PipelineStatus is the response / status update for a pipeline run.
+// Subject: ai.pipeline.status.{request_id}
+message PipelineStatus {
+  string          request_id          = 1;
+  string          status              = 2;
+  string          run_id              = 3;
+  string          engine              = 4;
+  string          pipeline            = 5;
+  string          submitted_at        = 6;
+  string          error               = 7;
+  repeated string available_pipelines = 8;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// D&D Companion App Contracts (dnd_app profile)
+// These are designed to be simple and self-documenting. A non-technical user
+// (e.g. my wife) can read this and understand:
+// - A D&D session has multiple players (group chat or individual mics via STT diarization).
+// - We pull from MY books/notes/lore (large corpus via RAG).
+// - NPCs are like video game characters with persistent memory and personality.
+// - Vision: describe maps/minis/photos.
+// - Long-term memory: remember past sessions, character arcs from MY notes.
+// - QLoRA: fine-tune on my personal D&D style/data for "on the spot" polish.
+// - Data ownership: everything stays local on my NFS/OpenEBS storage.
+// - Base for critical NPCs in other games/apps.
+// Easy wiring: see ai-sdk metadata for "dnd_app", turn events carry dnd_ fields.
+// Contracts live in handler-base; prompts in prompt-library/prompts/dnd/.
+// For research: these + evals in interaction-control-plane make it shareable.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// DndSession represents one D&D game session (campaign night).
+// Subject: ai.dnd.session.start / ai.dnd.session.update
+message DndSession {
+  string session_id = 1;      // unique per game night
+  string campaign_id = 2;     // links to user's campaign notes
+  string dm_user_id = 3;      // the Dungeon Master
+  repeated DndPlayer players = 4;  // group or individuals
+  string current_scene = 5;   // e.g. "combat in tavern", from lore
+  repeated string active_npcs = 6; // critical NPCs with memory
+  map<string, string> house_rules = 7; // user's personal rules
+  string vision_description = 8; // from vision input (map, mini, etc.)
+  int64 started_at = 9;
+  map<string, string> metadata = 10; // e.g. "mood": "tense", "location": "underdark"
+}
+
+// DndPlayer for multi-user: supports group speech (one mic for party) or individual (diarized STT).
+message DndPlayer {
+  string player_id = 1;
+  string character_name = 2;  // from user's notes
+  string voice_id = 3;        // for TTS if NPC-like
+  bool is_speaking = 4;       // from STT diarization or labels
+  string last_action = 5;     // e.g. "attacks goblin"
+  map<string, string> character_sheet_refs = 6; // links to user's data
+}
+
+// DndPlayerAction: what a player does (from voice/text).
+// Subject: ai.dnd.action
+message DndPlayerAction {
+  string session_id = 1;
+  string player_id = 2;
+  string action_text = 3;     // transcribed or typed
+  string action_type = 4;     // "speech", "attack", "skill_check", "explore"
+  repeated string targets = 5; // NPCs, objects
+  bool is_group_action = 6;   // group speech vs individual
+}
+
+// DndVisionInput is a legacy raw-image envelope retained for wire compatibility.
+// It must not be wired to NATS or a new runtime. Table-camera frames use a
+// local ephemeral transport; a future consented owner may publish only the
+// structured DndVisionEvent defined below.
+message DndVisionInput {
+  option deprecated = true;
+  string session_id = 1;
+  bytes image_data = 2 [deprecated = true];
+  string description_request = 3; // e.g. "describe this battle map for DM"
+  string source = 4;          // "player_photo", "mini", "map", "handout"
+}
+
+// DndVisionGazeCluster is a coarse, non-identifying group-attention signal.
+// It never names, tracks, or assigns a stable identity to a person.
+enum DndVisionGazeCluster {
+  DND_VISION_GAZE_CLUSTER_UNSPECIFIED     = 0;
+  DND_VISION_GAZE_CLUSTER_DISPERSED       = 1;
+  DND_VISION_GAZE_CLUSTER_SHARED_TABLETOP = 2;
+  DND_VISION_GAZE_CLUSTER_SHARED_OFFTABLE = 3;
+}
+
+// DndVisionEvent is the only table-vision payload allowed on NATS.
+// Subject: ai.vision.events.{session_id}
+//
+// Frames and crops remain on the local ephemeral media path. This event has
+// no raw bytes, URI, biometric identity, face/emotion/demographic signal, or
+// participant-to-person mapping. Publishers must validate it before publish;
+// the AI_VISION_EVENTS stream retains it for at most 24 hours.
+message DndVisionEvent {
+  string session_id = 1;
+  uint64 sequence = 2;
+  uint64 observed_at_mono_ns = 3;
+  int64 published_at_unix_ms = 4;
+  uint32 person_count = 5;
+  float motion_energy = 6; // finite normalized value in [0,1]
+  DndVisionGazeCluster gaze_cluster = 7;
+  bool scene_changed = 8;
+  string policy_version = 9;
+  uint32 frame_width = 10;  // dimensions only; bounded to 1280x720
+  uint32 frame_height = 11;
+}
+
+// DndLongTermMemoryRef: reference to user's long-term data (books, past sessions, character arcs).
+// Used with RAG + QLoRA for accurate recall of "my flair".
+// Subject: ai.dnd.memory.retrieve
+message DndLongTermMemoryRef {
+  string session_id = 1;
+  string ref_id = 2;          // e.g. "phandelver_ch1_p12" or "pc_backstory_alara"
+  string content_type = 3;    // "book_excerpt", "session_log", "npc_note"
+  string source_uri = 4;      // NFS path or OpenEBS hot cache ref
+  float relevance_score = 5;
+  map<string, string> tags = 6; // e.g. "location": "sword_coast"
+}
+
+// DndQLoRAAdapter: for fine-tuning on user's personal D&D data (notes, past games, house rules).
+// Stored on NFS CSI long-term; hot cache on NVMe/OpenEBS for inference.
+// Subject: ai.dnd.qlora.update or load
+message DndQLoRAAdapter {
+  string adapter_id = 1;
+  string base_model = 2;      // e.g. "llama-3-8b"
+  string dataset_ref = 3;     // user's corpus (books + notes)
+  string storage_path = 4;    // NFS for ownership; OpenEBS for speed
+  float rank = 5;             // QLoRA rank, e.g. 16 or 64
+  bool is_active = 6;         // loaded for this session/NPC
+  map<string, string> metadata = 7; // "trained_on": "my_curse_of_strahd_notes"
+}
+
+// DndNPCState: for critical NPCs as "video game" entities with persistent memory/personality.
+// Base engine for other apps/games.
+// Subject: ai.dnd.npc.update
+message DndNPCState {
+  string npc_id = 1;
+  string name = 2;
+  string current_location = 3;
+  repeated string goals = 4;  // from user's notes
+  repeated DndLongTermMemoryRef memory_refs = 5; // long-term recall
+  string personality_prompt_ref = 6; // link to prompt-library dnd/npc-persona
+  map<string, string> relationships = 7; // "pc_alara": "ally", "bbeg": "rival"
+  int32 disposition = 8;      // -100 to 100, evolves in session
+  // Legacy raw snapshot field. Do not persist table frames in NPC state.
+  bytes vision_snapshot = 9 [deprecated = true];
+}
+
+// DndSessionSummary for long-term: materializes campaign state for next session.
+// Uses user's data exclusively.
+message DndSessionSummary {
+  string session_id = 1;
+  string campaign_id = 2;
+  string summary_text = 3;    // generated from notes + events, in user's style
+  repeated string key_events = 4;
+  repeated DndNPCState npc_states = 5;
+  repeated DndLongTermMemoryRef new_memories = 6;
+  string next_session_hook = 7;
+}

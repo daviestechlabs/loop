@@ -1,0 +1,29 @@
+{
+  "name": "@daviestechlabs/ai-sdk",
+  "version": "0.1.0",
+  "description": "Framework-neutral client SDK for Davies Tech Labs interaction surfaces.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "./scripts/test.sh",
+    "bench:audio": "bun run build && bun tests/audio.bench.mjs",
+    "prepare": "bun run build",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.0"
+  }
+}

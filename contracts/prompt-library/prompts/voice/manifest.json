@@ -1,0 +1,89 @@
+{
+  "family": "voice",
+  "prompts": [
+    {
+      "id": "voice.product_response_style.default",
+      "version": "v2",
+      "type": "system",
+      "path": "prompts/voice/product-response-style.system.txt",
+      "source": {
+        "repo": "prompt-library",
+        "path": "prompts/voice/product-response-style.system.txt",
+        "symbol": "canonical_text"
+      },
+      "notes": "Shared spoken response style. v2 removes example-source leakage, requires supplied citation evidence, and reduces prompt length."
+    },
+    {
+      "id": "voice.dnd_dialogue.default",
+      "version": "v2",
+      "type": "system",
+      "path": "prompts/voice/dnd-dialogue.system.txt",
+      "source": {
+        "repo": "prompt-library",
+        "path": "prompts/voice/dnd-dialogue.system.txt",
+        "symbol": "canonical_text"
+      },
+      "notes": "D&D profile guidance for conversational references, missing spatial evidence, and held proposals. v2 leaves cancellation acknowledgment to C and asks the model for the remaining answer. Does not authorize game effects."
+    },
+    {
+      "id": "voice.live_spoken_assistant.default",
+      "version": "v3",
+      "type": "system",
+      "path": "prompts/voice/live-spoken-assistant.system.txt",
+      "source": {
+        "repo": "gradio-ui",
+        "path": "live_voice.py",
+        "symbol": "DEFAULT_SYSTEM_PROMPT"
+      },
+      "notes": "Default spoken-answer prompt. v3 binds the seven-tag live objective subset, quarantines sigh/whisper/angry failures, and retains the per-segment budget (R-D-16)."
+    },
+    {
+      "id": "voice.loop.assistant_default",
+      "version": "v3",
+      "type": "system",
+      "path": "prompts/voice/loop-assistant.system.txt",
+      "source": {
+        "repo": "prompt-library",
+        "path": "prompts/voice/loop-assistant.system.txt",
+        "symbol": "canonical_text"
+      },
+      "notes": "Loop conversation guidance. v3 answers scene questions before imagined narration and clarifies conflicting user names. History still does not establish presence or authorize effects."
+    },
+    {
+      "id": "voice.loop.parrot_default",
+      "version": "v1",
+      "type": "system",
+      "path": "prompts/voice/loop-parrot.system.txt",
+      "source": {
+        "repo": "gradio-ui",
+        "path": "voice_loop.py",
+        "symbol": "DEFAULT_PARROT_SYSTEM_PROMPT"
+      },
+      "notes": "Exact-repeat prompt used for speech-loop and echo-path testing."
+    },
+    {
+      "id": "voice.orchestrated_turn.spoken_assistant",
+      "version": "v3",
+      "type": "system",
+      "path": "prompts/voice/orchestrated-turn-spoken-assistant.system.txt",
+      "source": {
+        "repo": "gradio-ui",
+        "path": "tts.py",
+        "symbol": "DEFAULT_ORCHESTRATED_SYSTEM_PROMPT"
+      },
+      "notes": "Default orchestrated spoken prompt. v3 binds the seven-tag live objective subset, quarantines sigh/whisper/angry failures, and retains the per-segment budget (R-D-16)."
+    },
+    {
+      "id": "voice.pipeline.rag_assistant",
+      "version": "v1",
+      "type": "system",
+      "path": "prompts/voice/pipeline-rag-assistant.system.txt",
+      "source": {
+        "repo": "prompt-library",
+        "path": "prompts/voice/pipeline-rag-assistant.system.txt",
+        "symbol": "archived_from_voice_assistant"
+      },
+      "notes": "Archived reference prompt retained from the deprecated voice-assistant pipeline."
+    }
+  ]
+}

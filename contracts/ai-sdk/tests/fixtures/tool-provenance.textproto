@@ -1,0 +1,11 @@
+request_id: "req-browser-dnd"
+type: TURN_EVENT_TEXT_COMPLETED
+text: "You rolled 20."
+display_text: "You rolled 20."
+is_final: true
+tool_result {
+  tool_id: "dnd-dice-roll"
+  tool_call_id: "dice-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  output_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  elapsed_ms: 12
+}

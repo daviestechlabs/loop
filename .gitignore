@@ -1,0 +1,13 @@
+node_modules/
+vendor-artifacts/
+__pycache__/
+.build/
+*.o
+*.sqlite*
+*.env
+.env*
+product/loop/server/loop-server
+product/loop/server/loop-test*
+voice/c-runtime/c-*
+voice/c-runtime/vbus-broker
+SOURCE-CANDIDATE.json

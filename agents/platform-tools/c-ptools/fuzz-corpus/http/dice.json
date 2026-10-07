@@ -1,0 +1,1 @@
+{"tool_call_id":"roll","idempotency_key":"roll","session_id":"table","parent_turn_id":"turn","agent_id":"dnd-agent","tool_id":"dnd-dice-roll","input_json":"{\"expression\":\"2d6+3\"}"}

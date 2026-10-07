@@ -1,0 +1,1 @@
+{"ignored":{"request_id":"nested","items":[{"identity_token":"nested"},[1,2,3]]},"metadata":{"input_mode":"text","ignored":{"input_mode":"nested"}},"identity_token":"vat1.payload.signature","text":"hello","request_id":"outer"}

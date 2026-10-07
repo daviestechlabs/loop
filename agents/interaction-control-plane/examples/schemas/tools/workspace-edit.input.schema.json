@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/tools/workspace-edit.input.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["workspace_id", "patch"],
+  "properties": {
+    "workspace_id": {"type": "string", "minLength": 1},
+    "patch": {"type": "string", "minLength": 1},
+    "approval_id": {"type": "string"},
+    "dry_run": {"type": "boolean", "default": true}
+  }
+}

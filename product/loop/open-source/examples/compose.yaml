@@ -1,0 +1,20 @@
+services:
+  loop:
+    build:
+      context: ../../../..
+      dockerfile: product/loop/Dockerfile
+    platform: linux/amd64
+    image: loop-source:reviewed
+    env_file: loop.env
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - loop-evidence:/data
+    read_only: true
+    tmpfs:
+      - /tmp:mode=1777,size=16777216
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+volumes:
+  loop-evidence:

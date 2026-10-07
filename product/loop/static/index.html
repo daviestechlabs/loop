@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>loop</title>
+<link rel="stylesheet" href="styles.css">
+<body>
+  <div class="app" data-mode="idle" data-sheet="closed">
+    <header class="bar">
+      <span class="word">loop</span>
+      <span class="host">loop.lab</span>
+      <a class="act" id="sign-in" href="/api/oauth/login">sign in</a>
+      <dl class="meters">
+        <div title="Input completion requested to playback finished · browser observation, not acoustic output"><dt>e2e</dt><dd id="e2e-meter">—</dd></div>
+        <div title="Input completion requested to first text received · browser observation"><dt>ttft</dt><dd id="ttft-meter">—</dd></div>
+        <div><dt>tok</dt><dd id="token-count">—</dd></div>
+        <div><dt>$</dt><dd>—</dd></div>
+        <div><dt>wt</dt><dd id="wt-meter">unchecked</dd></div>
+      </dl>
+    </header>
+
+    <div class="workspace">
+      <main class="stage">
+        <section class="presence">
+          <div class="orb" aria-hidden="true"><i></i></div>
+          <div class="presence-copy">
+            <p class="mode">ready</p>
+            <p class="partial" role="status" hidden></p>
+          </div>
+          <p class="presence-hint">Click to start live talk</p>
+        </section>
+
+        <p class="prompts">Ask a question aloud after the status changes to listening.</p>
+
+        <section class="feed" aria-label="Turns">
+          <p class="empty-feed">Ready when you are. Start live talk, then speak naturally.</p>
+        </section>
+      </main>
+      <aside id="turn-inspector" class="rail" aria-label="Path and rack" data-sheet="path">
+        <button type="button" id="sheet-close" class="sheet-close" aria-label="Close turn inspection">Close ✕</button>
+        <section class="rail-block">
+          <header class="rail-head">
+            <h2>path</h2>
+            <p class="rail-sub" id="path-label">No turn selected</p>
+          </header>
+          <div class="waterfall empty" id="rail-waterfall" aria-label="Browser response timeline" title="Input completion requested / first text / first audio / playback scheduled / playback finished. Scheduled playback does not prove acoustic output.">
+          </div>
+          <p class="waterfall-legend" id="waterfall-legend">Not reported</p>
+          <p class="id-line" id="rail-id">Not reported</p>
+          <table class="path" id="rail-path"></table>
+          <p class="burn-line" id="rail-burn">Not reported</p>
+          <p class="rail-acts">
+            <button type="button" class="act" disabled title="Not connected" id="rail-trace">trace</button>
+            <button type="button" class="act" disabled title="Not connected" id="rail-replay">replay</button>
+            <button type="button" class="act" disabled title="Not connected" id="rail-revise">revise last</button>
+            <button type="button" class="act" disabled title="Not connected" id="rail-rerun">re-run from plan</button>
+          </p>
+        </section>
+        <section class="rail-block rack">
+          <header class="rail-head">
+            <h2>rack</h2>
+            <p class="rail-sub">session health</p>
+          </header>
+          <table class="rack-table">
+            <tr><th>telemetry</th><td>Not connected</td></tr>
+          </table>
+          <p class="curtain-note">Rack health, session totals, cost, and latency percentiles are unavailable.</p>
+        </section>
+      </aside>
+    </div>
+
+    <div class="sheet-chrome">
+      <button type="button" class="sheet-handle" id="sheet-toggle" aria-expanded="false" aria-controls="turn-inspector">
+        <span class="sheet-grab"></span>
+        <span class="sheet-label">Inspect turn</span>
+      </button>
+      <div class="sheet-tabs" role="tablist">
+        <button type="button" class="sheet-tab on" data-sheet="path" role="tab" aria-selected="true">path</button>
+        <button type="button" class="sheet-tab" data-sheet="rack" role="tab" aria-selected="false">rack</button>
+      </div>
+    </div>
+
+    <footer class="dock">
+      <button type="button" class="interrupt" hidden>interrupt</button>
+      <button type="button" class="mic" aria-label="Start live conversation" aria-pressed="false">
+        <span class="mic-label">talk</span>
+      </button>
+      <div class="dock-steer" id="dock-steer">
+        <button type="button" class="act" disabled title="Not connected" data-act="revise">revise last</button>
+        <button type="button" class="act" disabled title="Not connected" data-act="rerun">re-run from plan</button>
+      </div>
+      <p class="dock-note"><span class="dock-help">Click to start or stop. Speak over a reply to interrupt.</span>
+        <span class="audio-transport-choice"><label for="input-transport">Audio transport</label> <select id="input-transport" disabled>
+          <option value="datagram">Datagrams</option>
+          <option value="stream" selected>Reliable stream</option>
+        </select></span>
+        <label><input id="record-consent" type="checkbox"> Save audio, evidence &amp; model context</label>
+        <small>Includes system prompts, retrieved context, and dialogue in this browser and your private Loop recording.</small>
+        <button id="retry-save" class="act" type="button" hidden>retry save</button>
+      </p>
+    </footer>
+  </div>
+    <dialog id="evidence-dialog">
+      <form method="dialog"><button type="submit">close</button></form>
+      <h2>Turn evidence</h2><pre id="evidence-content"></pre>
+      <button type="button" id="export-evidence">export JSON</button>
+      <details>
+        <summary>Linked Anvil evidence</summary>
+        <div id="anvil-references"></div>
+      </details>
+      <details>
+        <summary>Export for Anvil</summary>
+        <p>Use the intended evidence run ID and source commit. The export stays held for review in Anvil.</p>
+        <form id="anvil-export-form">
+          <fieldset id="anvil-export-fields">
+            <legend>Anvil report binding</legend>
+            <p><label>Evidence run ID <input id="anvil-run-id" required maxlength="36" autocomplete="off"></label></p>
+            <p><label>Source commit <input id="anvil-source" required maxlength="40" autocomplete="off"></label></p>
+            <p><label>Report sequence <input id="anvil-sequence" required type="number" min="1" max="1000000" step="1" value="1"></label></p>
+            <button type="submit">download Anvil bundle</button>
+          </fieldset>
+          <p id="anvil-export-status" role="status"></p>
+        </form>
+      </details>
+      <details>
+        <summary>Save a failure case</summary>
+        <p>Record the expected behavior for this saved turn. This does not create an Anvil review or verdict.</p>
+        <form id="capture-form">
+          <fieldset id="capture-fields">
+            <legend>Failure case</legend>
+            <p><label>Title <input id="capture-title" required maxlength="160"></label></p>
+            <p><label>Category <input id="capture-category" required maxlength="80"></label></p>
+            <p><label>Expected behavior <textarea id="capture-expected" required maxlength="8192"></textarea></label></p>
+          </fieldset>
+          <button id="capture-save" type="submit">save failure case</button>
+          <p id="capture-status" role="status"></p>
+        </form>
+        <p>Cases for this turn among your latest 50 saved cases:</p>
+        <ul id="capture-list"></ul>
+      </details>
+    </dialog>
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+You are a helpful assistant. Use the provided context to answer the user's question. If the context doesn't contain relevant information, say so.

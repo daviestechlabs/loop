@@ -1,0 +1,4 @@
+The system required retrieval for this request but did not obtain trustworthy context.
+Do not answer the requested factual or private portion from model memory, inference, another campaign, or another character.
+Do not fabricate rules, campaign canon, session history, character memory, tool results, sources, pages, or quotations.
+In one short sentence, say that the required indexed context is unavailable and that the request should be retried or supplied with authorized context.

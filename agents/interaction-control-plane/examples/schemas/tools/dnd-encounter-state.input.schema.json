@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/tools/dnd-encounter-state.input.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operation", "campaign_id", "encounter_id"],
+  "properties": {
+    "include_previous": {"const": true, "description": "Opt into a signed prior-state snapshot for verification of an explicit encounter mutation."},
+    "operation": {"type": "string", "enum": ["start", "get", "add", "remove", "advance", "end", "damage", "heal", "condition_add", "condition_remove", "roll_initiative"]},
+    "campaign_version": {"type": "integer", "minimum": 1, "maximum": 9007199254740991},
+    "initiative": {
+      "description": "Explicit final d20 expressions for unique owned campaign character IDs. The C host also enforces byte and saved projection bounds.",
+      "type": "array", "minItems": 1, "maxItems": 64,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["character_id", "expression"],
+        "properties": {
+          "character_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"},
+          "expression": {"type": "string", "pattern": "^(1d20|2d20k[hl]1)([+]([1-7][0-9]?|[89]|80)|-([1-9][0-9]?|10[01]))?$"}
+        }
+      }
+    },
+    "campaign_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "encounter_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "expected_version": {"type": "integer", "minimum": 0},
+    "participant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "initiative", "max_hp", "current_hp", "conditions"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+        "name": {"type": "string", "minLength": 1, "maxLength": 120},
+        "initiative": {"type": "integer", "minimum": -100, "maximum": 100},
+        "max_hp": {"type": "integer", "minimum": 0, "maximum": 100000},
+        "current_hp": {"type": "integer", "minimum": 0, "maximum": 100000},
+        "conditions": {"type": "array", "uniqueItems": true, "items": {"type": "string", "enum": ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"]}}
+      }
+    },
+    "participant_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"},
+    "amount": {"type": "integer", "minimum": 1, "maximum": 100000},
+    "damage_type": {"type": "string", "enum": ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"]},
+    "condition": {"type": "string", "enum": ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"operation": {"enum": ["advance", "end", "damage", "heal", "condition_add", "condition_remove"]}}},
+      "else": {"properties": {"include_previous": false}}
+    },
+    {
+      "if": {"properties": {"operation": {"const": "roll_initiative"}}},
+      "then": {
+        "required": ["expected_version", "campaign_version", "initiative"],
+        "properties": {
+          "expected_version": {"maximum": 9007199254740991},
+          "participant": false, "participant_id": false, "amount": false,
+          "damage_type": false, "condition": false
+        }
+      },
+      "else": {"properties": {"campaign_version": false, "initiative": false}}
+    },
+    {"if": {"properties": {"operation": {"const": "start"}}}, "then": {"required": ["expected_version"], "properties": {"expected_version": {"const": 0}}}},
+    {"if": {"properties": {"operation": {"enum": ["add", "remove", "advance", "end", "damage", "heal", "condition_add", "condition_remove"]}}}, "then": {"required": ["expected_version"], "properties": {"expected_version": {"minimum": 1}}}},
+    {"if": {"properties": {"operation": {"const": "add"}}}, "then": {"required": ["participant"]}},
+    {"if": {"properties": {"operation": {"enum": ["remove", "damage", "heal", "condition_add", "condition_remove"]}}}, "then": {"required": ["participant_id"]}},
+    {"if": {"properties": {"operation": {"enum": ["damage", "heal"]}}}, "then": {"required": ["amount"]}},
+    {"if": {"properties": {"operation": {"enum": ["condition_add", "condition_remove"]}}}, "then": {"required": ["condition"]}}
+  ]
+}

@@ -1,0 +1,15 @@
+contracts/ai-sdk/wasm/turn_provenance.sources
+contracts/ai-sdk/wasm/turn_provenance.c
+contracts/ai-sdk/wasm/turn_provenance.h
+contracts/ai-sdk/scripts/build-turn-provenance-wasm.sh
+contracts/ai-sdk/scripts/turn-provenance-asset.mjs
+voice/c-runtime/wire/pb_min.c
+voice/c-runtime/wire/pb_min.h
+contracts/handler-base/c-pb/pb_dnd_request.h
+contracts/handler-base/c-pb/pb_dnd_campaign.h
+contracts/handler-base/c-pb/pb_dnd_action.h
+voice/c-runtime/common/dnd_retrieval_types.h
+voice/c-runtime/common/turn_response.c
+voice/c-runtime/common/turn_response.h
+voice/c-runtime/common/utf8.c
+voice/c-runtime/common/utf8.h

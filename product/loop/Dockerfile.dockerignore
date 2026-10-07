@@ -1,0 +1,12 @@
+.git
+**/.git
+**/node_modules
+**/*.dSYM
+product/loop/server/loop-server
+product/loop/server/loop-test
+product/loop/server/loop-test-asan
+product/loop/server/loop-test-http
+product/loop/**/*.sqlite*
+product/loop/server/loop-test-http-asan
+product/loop/server/loop-test-oauth*
+product/loop/server/loop-test-sso*

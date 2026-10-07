@@ -1,0 +1,20 @@
+request_id: "req-browser-dnd"
+type: TURN_EVENT_TEXT_COMPLETED
+text: "The campaign roster has 2 characters."
+display_text: "The campaign roster has 2 characters."
+is_final: true
+tool_result {
+  tool_id: "dnd-campaign-state"
+  tool_call_id: "campaign-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  output_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  elapsed_ms: 12
+}
+dnd_campaign_roster {
+  campaign_id: "campaign-1"
+  version: 4
+  status: "active"
+  characters { id: "aria" name: "Aria — café" kind: "player" max_hp: 30 }
+  characters { id: "goblin" name: "Goblin" kind: "npc" max_hp: 7 }
+  tool_call_id: "campaign-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  output_sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

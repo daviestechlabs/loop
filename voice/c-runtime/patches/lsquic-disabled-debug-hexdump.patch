@@ -1,0 +1,32 @@
+diff --git a/src/liblsquic/lsquic_enc_sess_ietf.c b/src/liblsquic/lsquic_enc_sess_ietf.c
+index aa3369e..7314d9a 100644
+--- a/src/liblsquic/lsquic_enc_sess_ietf.c
++++ b/src/liblsquic/lsquic_enc_sess_ietf.c
+@@ -2825,8 +2825,11 @@ iquic_esfi_data_in (enc_session_t *sess, enum enc_level enc_level,
+         return -1;
+     }
+     LSQ_DEBUG("provided %zu bytes of %u-level data to SSL", len, enc_level);
+-    str_sz = lsquic_hexdump(buf, len, str, sizeof(str));
+-    LSQ_DEBUG("\n%.*s", (int) str_sz, str);
++    if (LSQ_LOG_ENABLED(LSQ_LOG_DEBUG))
++    {
++        str_sz = lsquic_hexdump(buf, len, str, sizeof(str));
++        LSQ_DEBUG("\n%.*s", (int) str_sz, str);
++    }
+     s = SSL_do_handshake(enc_sess->esi_ssl);
+     LSQ_DEBUG("do_handshake returns %d", s);
+     return 0;
+@@ -3335,8 +3338,11 @@ readf_cb (void *ctx, const unsigned char *buf, size_t len, int fin)
+     {
+         LSQ_DEBUG("provided %zu bytes of %u-level data to SSL", len,
+                                                         readf_ctx->enc_level);
+-        str_sz = lsquic_hexdump(buf, len, str, sizeof(str));
+-        LSQ_DEBUG("\n%.*s", (int) str_sz, str);
++        if (LSQ_LOG_ENABLED(LSQ_LOG_DEBUG))
++        {
++            str_sz = lsquic_hexdump(buf, len, str, sizeof(str));
++            LSQ_DEBUG("\n%.*s", (int) str_sz, str);
++        }
+         return len;
+     }
+     else

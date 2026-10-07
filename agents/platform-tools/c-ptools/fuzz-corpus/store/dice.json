@@ -1,0 +1,1 @@
+{"tool_call_id":"dice-1","idempotency_key":"once-1","user_id":"alice","session_id":"table-1","parent_turn_id":"turn-1","agent_id":"dnd-agent","tool_id":"dnd-dice-roll","input_json":"{\"expression\":\"2d6\"}","output_json":"{\"rolls\":[3,4],\"total\":7}","summary":"quoted \"dice\" and a } brace","state":"completed","created_at":10,"updated_at":20}

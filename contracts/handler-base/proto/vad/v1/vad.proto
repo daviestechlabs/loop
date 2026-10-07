@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package vad.v1;
+
+option go_package = "git.daviestechlabs.io/daviestechlabs/handler-base/v2/gen/vad/v1;vadv1";
+
+import "messages/v1/messages.proto";
+
+// VAD service contract.
+// Small dedicated service for voice activity (energy + optional ML).
+// Primary consumer is audio-processor for barge-in and endpointing.
+// Supports both energy-only (fast, no deps, pure Go or C) and ML backends (Silero etc.).
+// Results are also published as NATS protobuf events (see messages.v1.STTInterrupt etc.).
+service VAD {
+  // Streaming detect for live mic / TTS-mixed audio.
+  rpc Detect(stream VADAudioChunk) returns (stream VADResult);
+
+  // Unary for short segments or testing.
+  rpc DetectOnce(VADAudioChunk) returns (VADResult);
+
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string backend = 2;  // "energy", "silero-onnx", "webrtcvad", "c-vad", ...
+  string error = 3;
+}
+
+message VADAudioChunk {
+  messages.v1.InferenceRequestContext context = 1;
+  bytes pcm_s16le = 2;
+  int32 sample_rate = 3;
+  int32 channels = 4;  // 1 for mono preferred
+  // energy hint from caller (optional, for hybrid)
+  float rms_energy = 5;
+}
+
+message VADResult {
+  bool is_speech = 1;
+  float probability = 2;     // 0..1 from ML or energy-derived
+  float confidence = 3;
+  float energy = 4;          // raw RMS or similar
+  int64 timestamp_ms = 5;
+  string backend = 6;        // which detector produced this
+  // mirrors fields from messages.v1 for easy mapping to STTInterrupt / TurnEvent
+  bool has_voice_activity = 7;
+  float vad_confidence = 8;
+  messages.v1.STTAudioSourceKind source_kind = 9;
+}
+
+// VADConfig can be sent out-of-band (env or initial message) to select
+// energy-only vs ML, thresholds, etc. Energy backend is preferred for
+// lowest latency / no external runtime deps.
+message VADConfig {
+  bool use_energy = 1;       // pure energy / RMS based (fast path)
+  float energy_threshold = 2;
+  bool use_ml = 3;           // e.g. Silero
+  float ml_threshold = 4;
+  // future: cgo / pure C backend selector for even lower latency VAD
+  string backend = 5;        // "energy", "silero", "c-vad"
+}

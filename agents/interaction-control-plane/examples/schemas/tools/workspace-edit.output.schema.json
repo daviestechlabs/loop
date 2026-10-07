@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "schemas/tools/workspace-edit.output.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["applied", "changed_files"],
+  "properties": {
+    "applied": {"type": "boolean"},
+    "changed_files": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "diff_artifact_uri": {"type": "string"},
+    "error": {"type": "string"}
+  }
+}

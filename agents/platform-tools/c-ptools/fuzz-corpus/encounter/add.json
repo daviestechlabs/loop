@@ -1,0 +1,1 @@
+{"operation":"add","campaign_id":"table","encounter_id":"battle","expected_version":1,"participant":{"id":"rogue","name":"Rogue","initiative":12,"max_hp":9,"current_hp":0,"conditions":["prone"]}}

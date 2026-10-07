@@ -1,0 +1,41 @@
+{
+  "family": "rag",
+  "prompts": [
+    {
+      "id": "rag.context_fallback_assistant",
+      "version": "v1",
+      "type": "system",
+      "path": "prompts/rag/context-fallback-assistant.system.txt",
+      "source": {
+        "repo": "handler-base",
+        "path": "clients/clients.go",
+        "symbol": "buildMessages"
+      },
+      "notes": "Default grounded-answer fallback used when retrieval context is present but no explicit system prompt was supplied by the caller."
+    },
+    {
+      "id": "rag.answer.grounded_response",
+      "version": "v4",
+      "type": "system",
+      "path": "prompts/rag/grounded-response.system.txt",
+      "source": {
+        "repo": "prompt-library",
+        "path": "prompts/rag/grounded-response.system.txt",
+        "symbol": "canonical_text"
+      },
+      "notes": "Canonical C grounded-answer prompt. Requests direct answers of at most 100 words. Preserves rule distinctions and forbids completing truncated conditions from memory."
+    },
+    {
+      "id": "rag.answer.no_context_fallback",
+      "version": "v2",
+      "type": "system",
+      "path": "prompts/rag/no-context-fallback.system.txt",
+      "source": {
+        "repo": "prompt-library",
+        "path": "prompts/rag/no-context-fallback.system.txt",
+        "symbol": "canonical_text"
+      },
+      "notes": "Fail-closed generation policy for unavailable or unauthorized rules, campaign, session, and character retrieval."
+    }
+  ]
+}
