@@ -8,6 +8,9 @@ Keep model files, recordings, and training archives outside the source tree.
 
 Linux needs a C compiler, Make, Python 3.9 or later, OpenSSL development headers, SQLite development headers, tar, and Bun 1.3.14.
 The workflow installs these dependencies on Ubuntu 24.04.
+Its host dependency lock selects the glibc Bun build for Ubuntu.
+The image dependency lock retains the musl Bun build for Alpine.
+
 The dependency fetcher downloads seven exact npm archives from their public sources.
 It checks locked size, SHA-256, and npm SHA-512 integrity before installation.
 The installer runs no package lifecycle scripts.

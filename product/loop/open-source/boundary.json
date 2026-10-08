@@ -14,6 +14,7 @@
     "product/loop/open-source/boundary.json",
     "product/loop/open-source/test_prepare.py",
     "product/loop/open-source/fetch-dependencies.py",
+    "product/loop/open-source/host-dependencies.json",
     "product/loop/open-source/test_dependencies.py",
     "product/loop/open-source/check.sh",
     "product/loop/open-source/examples/compose.yaml",

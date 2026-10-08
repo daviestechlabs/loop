@@ -118,15 +118,22 @@ def fetch(root, item, opener):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--group", choices=("npm", "bun", "all"), default="npm")
+    parser.add_argument(
+        "--group", choices=("npm", "bun", "bun-host", "all"), default="npm"
+    )
     parser.add_argument(
         "--root", type=Path, default=Path(__file__).resolve().parents[1]
     )
     args = parser.parse_args()
     os.umask(0o077)
     root = args.root.resolve(strict=True)
-    lock = json.loads((root / "vendor.lock.json").read_text())
-    artifacts = checked_artifacts(lock, args.group)
+    lock_path = (
+        root / "open-source/host-dependencies.json"
+        if args.group == "bun-host"
+        else root / "vendor.lock.json"
+    )
+    lock = json.loads(lock_path.read_text())
+    artifacts = checked_artifacts(lock, "bun" if args.group == "bun-host" else args.group)
     opener = build_opener(PublicRedirects())
     for item in artifacts:
         print(item["path"], fetch(root, item, opener))
