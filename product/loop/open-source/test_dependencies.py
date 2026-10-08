@@ -4,6 +4,7 @@ import base64
 import hashlib
 import importlib.util
 import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -76,6 +77,15 @@ class DependencyTests(unittest.TestCase):
         (self.root / self.item["path"]).write_bytes(b"modified")
         with self.assertRaises(ValueError):
             dependencies.fetch(self.root, self.item, self.opener(self.body))
+
+    def test_complete_image_lock_passes_download_admission(self):
+        lock_path = Path(__file__).resolve().parents[1] / "vendor.lock.json"
+        lock = json.loads(lock_path.read_text())
+        selected = dependencies.checked_artifacts(lock, "all")
+        self.assertEqual(
+            {item["path"] for item in selected},
+            {item["path"] for item in lock["artifacts"]},
+        )
 
     def test_hash_size_and_npm_integrity_fail_without_publishing(self):
         for body, item in (

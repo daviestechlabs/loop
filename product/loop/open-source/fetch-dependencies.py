@@ -51,7 +51,7 @@ def checked_artifacts(lock, group):
             continue
         path = item["path"]
         if (
-            not re.fullmatch(r"vendor-artifacts/[A-Za-z0-9_.-]+", path)
+            not re.fullmatch(r"vendor-artifacts/[A-Za-z0-9_.+-]+", path)
             or path in paths
             or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"])
             or type(item["size"]) is not int
