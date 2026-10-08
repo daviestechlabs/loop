@@ -36,13 +36,19 @@ The full private test target remains available in the original monorepo.
 ## Local images
 
 The Loop image recipe targets Linux amd64.
-The fetcher downloads the locked public archives; it does not include them in a source release.
-Image builds use these archives without package-network access inside the Loop build stages.
+The public Loop recipe uses a pinned Debian base and public system packages.
+The fetcher verifies Bun and npm archives before the build.
+Frontend and C build steps use no network.
 The voice image uses its existing pinned native QUIC sources and public base images.
 
+The original lab recipe retains its offline Alpine archive lock.
+Some pinned Alpine archives are no longer available from their original public URLs.
+That recipe requires an existing verified archive cache.
+
 ```sh
-python3 product/loop/open-source/fetch-dependencies.py --group all
-docker build --platform linux/amd64 -f product/loop/Dockerfile -t loop-source:reviewed .
+python3 product/loop/open-source/fetch-dependencies.py
+python3 product/loop/open-source/fetch-dependencies.py --group bun-host
+docker build --platform linux/amd64 -f product/loop/open-source/Dockerfile -t loop-source:reviewed .
 docker build --build-arg TEST_TARGET=test-source -f voice/c-runtime/Dockerfile -t loop-voice-source:reviewed .
 ```
 

@@ -2,7 +2,7 @@ services:
   loop:
     build:
       context: ../../../..
-      dockerfile: product/loop/Dockerfile
+      dockerfile: product/loop/open-source/Dockerfile
     platform: linux/amd64
     image: loop-source:reviewed
     env_file: loop.env

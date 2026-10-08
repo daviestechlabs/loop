@@ -28,6 +28,5 @@ jobs:
         run: bash product/loop/open-source/check.sh
       - name: Verify source image recipes without publishing
         run: |
-          python3 product/loop/open-source/fetch-dependencies.py --group all
-          docker build -f product/loop/Dockerfile -t loop-source:ci .
+          docker build -f product/loop/open-source/Dockerfile -t loop-source:ci .
           docker build --build-arg TEST_TARGET=test-source -f voice/c-runtime/Dockerfile -t loop-voice-source:ci .
