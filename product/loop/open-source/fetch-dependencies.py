@@ -133,7 +133,9 @@ def main():
         else root / "vendor.lock.json"
     )
     lock = json.loads(lock_path.read_text())
-    artifacts = checked_artifacts(lock, "bun" if args.group == "bun-host" else args.group)
+    artifacts = checked_artifacts(
+        lock, "bun" if args.group == "bun-host" else args.group
+    )
     opener = build_opener(PublicRedirects())
     for item in artifacts:
         print(item["path"], fetch(root, item, opener))
